@@ -1,0 +1,27 @@
+import 'reflect-metadata';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { AppModule } from './app.module';
+import { appConfig } from './config/app.config';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+
+/**
+ * Boots the Nest application: wires global validation, response
+ * serialization, and error formatting, then starts listening on the
+ * configured port.
+ *
+ * @returns Resolves once the HTTP server is listening.
+ */
+async function bootstrap(): Promise<void> {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  const { port } = app.get<ConfigType<typeof appConfig>>(appConfig.KEY);
+
+  await app.listen(port);
+}
+
+bootstrap();
