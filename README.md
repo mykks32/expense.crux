@@ -38,15 +38,36 @@ After the first release, steps 1–2 and 6 are one-time only — every future re
 
 ## Running the published backend image
 
-Copy the example env file and fill in real values — this is the recommended way, not a list of `-e` flags to keep in sync by hand:
+Copy the example env file and fill in real values — this is the recommended way, not a list of `-e` flags to keep in sync by hand. **Don't reuse `apps/backend/.env.example`'s `MONGO_URI` here** — it points at `localhost`, which only works for local *non-Docker* dev. Inside a container, `localhost` is the container itself, so Mongo would be unreachable and the app hangs retrying `ECONNREFUSED`.
 
 ```bash
-cp apps/backend/.env.example backend.env
-# edit backend.env: MONGO_URI (point at a reachable Mongo — Atlas, your own container, etc),
-# JWT_ACCESS_SECRET, JWT_REFRESH_SECRET
+cp docker/backend.env.example backend.env
+# edit backend.env: MONGO_URI must point at a Mongo reachable from *inside* this
+# container — a managed instance (Atlas, etc), or a Mongo container on the same
+# Docker network (see below) — never localhost. Also set JWT_ACCESS_SECRET/JWT_REFRESH_SECRET.
 
 docker run -d --name expense-crux-backend -p 3000:3000 --env-file backend.env \
   ghcr.io/mykks32/expense-crux-backend:latest
 ```
 
 If the GHCR package is private, run `docker login ghcr.io` with a PAT that has `read:packages` first.
+
+### No external Mongo? Run one alongside it on a shared network
+
+```bash
+docker network create expense-crux-standalone
+
+docker run -d --name expense-crux-mongo --network expense-crux-standalone \
+  -e MONGO_INITDB_ROOT_USERNAME=mongo \
+  -e MONGO_INITDB_ROOT_PASSWORD=mongo \
+  -e MONGO_INITDB_DATABASE=expense_crux \
+  mongo:7
+
+# in backend.env: MONGO_URI=mongodb://mongo:mongo@expense-crux-mongo:27017/expense_crux?authSource=admin
+
+docker run -d --name expense-crux-backend --network expense-crux-standalone -p 3000:3000 \
+  --env-file backend.env \
+  ghcr.io/mykks32/expense-crux-backend:latest
+```
+
+If you'd rather not manage the network by hand, use `docker compose` instead (see "Running locally" above) — it already wires this up for you.
