@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+http-client.private.env.json
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+
+# IDE
+.idea/
+
+# Local Claude Code settings (personal, not shared — see .claude/settings.json for the shared config)
+.claude/settings.local.json
+
+# Test coverage
+coverage/
