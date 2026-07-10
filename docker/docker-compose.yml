@@ -16,12 +16,8 @@ services:
       - expense-crux-net
     ports:
       - "3000:3000"
-    environment:
-      MONGO_URI: mongodb://mongo:mongo@mongo:27017/expense_crux?authSource=admin
-      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-in-production}
-      ACCESS_TOKEN_TTL: 15m
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-too-in-production}
-      REFRESH_TOKEN_TTL: 7d
+    env_file:
+      - ./backend.env
     depends_on:
       mongo:
         condition: service_healthy

@@ -5,11 +5,12 @@ Expense tracking monorepo: NestJS backend (`apps/backend`), mobile app (`apps/mo
 ## Running locally
 
 ```bash
+cp docker/backend.env.example docker/backend.env   # first time only — edit secrets as needed
 cd docker
 docker compose up --build
 ```
 
-Backend on `http://localhost:3000`, MongoDB on `:27017`. See `apps/backend/http/` for ready-made `.http` requests.
+`docker-compose.yml` reads the backend's env vars from `docker/backend.env` (git-ignored) via `env_file`, rather than hardcoding them inline. Backend on `http://localhost:3000`, MongoDB on `:27017`. See `apps/backend/http/` for ready-made `.http` requests.
 
 ## Releasing
 
@@ -37,22 +38,15 @@ After the first release, steps 1–2 and 6 are one-time only — every future re
 
 ## Running the published backend image
 
+Copy the example env file and fill in real values — this is the recommended way, not a list of `-e` flags to keep in sync by hand:
+
 ```bash
-docker run -d \
-  --name expense-crux-backend \
-  -p 3000:3000 \
-  -e MONGO_URI="mongodb://user:pass@your-mongo-host:27017/expense_crux?authSource=admin" \
-  -e JWT_ACCESS_SECRET="replace-with-a-real-secret" \
-  -e ACCESS_TOKEN_TTL="15m" \
-  -e JWT_REFRESH_SECRET="replace-with-a-different-real-secret" \
-  -e REFRESH_TOKEN_TTL="7d" \
+cp apps/backend/.env.example backend.env
+# edit backend.env: MONGO_URI (point at a reachable Mongo — Atlas, your own container, etc),
+# JWT_ACCESS_SECRET, JWT_REFRESH_SECRET
+
+docker run -d --name expense-crux-backend -p 3000:3000 --env-file backend.env \
   ghcr.io/mykks32/expense-crux-backend:latest
 ```
 
-Or with an env file:
-
-```bash
-docker run -d --name expense-crux-backend -p 3000:3000 --env-file .env ghcr.io/mykks32/expense-crux-backend:latest
-```
-
-This only starts the backend — point `MONGO_URI` at a reachable MongoDB (Atlas, your own container, etc). If the GHCR package is private, run `docker login ghcr.io` with a PAT that has `read:packages` first.
+If the GHCR package is private, run `docker login ghcr.io` with a PAT that has `read:packages` first.
