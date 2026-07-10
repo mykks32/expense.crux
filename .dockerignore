@@ -10,3 +10,5 @@
 # Not needed for the backend image
 apps/mobile
 docker
+env
+scripts

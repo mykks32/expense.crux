@@ -8,8 +8,7 @@ dist/
 # Environment
 .env
 .env.local
-backend.env
-docker/backend.env
+env/*.env
 http-client.private.env.json
 
 # Logs
