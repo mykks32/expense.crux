@@ -1,0 +1,41 @@
+### Run auth.http's "Login" request first — it sets the shared authToken used below.
+
+### Create an expense
+# @name createExpense
+POST {{baseUrl}}/expenses
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Groceries",
+  "amount": 42.5,
+  "currency": "USD",
+  "category": "food",
+  "date": "2024-01-15",
+  "notes": "Weekly shop"
+}
+
+> {%
+    client.global.set("expenseId", response.body.data.id);
+%}
+
+### List expenses
+GET {{baseUrl}}/expenses?page=1&limit=10
+Authorization: Bearer {{authToken}}
+
+### Get a single expense
+GET {{baseUrl}}/expenses/{{expenseId}}
+Authorization: Bearer {{authToken}}
+
+### Update an expense
+PATCH {{baseUrl}}/expenses/{{expenseId}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "amount": 45
+}
+
+### Delete an expense
+DELETE {{baseUrl}}/expenses/{{expenseId}}
+Authorization: Bearer {{authToken}}
