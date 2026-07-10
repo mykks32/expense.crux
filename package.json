@@ -1,0 +1,28 @@
+{
+  "name": "expense.crux",
+  "version": "0.1.0",
+  "description": "Expense tracking monorepo (backend API + mobile app)",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "keywords": [
+    "expense",
+    "finance",
+    "tracker"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mykks32/expense.crux.git"
+  },
+  "license": "MIT",
+  "author": "mykks32",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "start:backend": "pnpm --filter @expense.crux/backend run start",
+    "start:mobile": "pnpm --filter @expense.crux/mobile run start",
+    "test": "pnpm -r run test"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {}
+}
