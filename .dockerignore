@@ -1,0 +1,12 @@
+# Dependencies and build output
+**/node_modules
+**/dist
+
+# VCS and env
+.git
+.env
+*.log
+
+# Not needed for the backend image
+apps/mobile
+docker
