@@ -1,0 +1,43 @@
+### Register a new user
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "jane@example.com",
+  "password": "password123",
+  "name": "Jane Doe"
+}
+
+### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "jane@example.com",
+  "password": "password123"
+}
+
+> {%
+    client.global.set("authToken", response.body.data.accessToken);
+    client.global.set("refreshToken", response.body.data.refreshToken);
+%}
+
+### Refresh the access token
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+> {%
+    client.global.set("authToken", response.body.data.accessToken);
+    client.global.set("refreshToken", response.body.data.refreshToken);
+%}
+
+### Logout (revokes the stored refresh token)
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{authToken}}
