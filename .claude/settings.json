@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm --filter * run build)",
+      "Bash(pnpm --filter * run start)",
+      "Bash(pnpm -r run build)",
+      "Bash(pnpm -r run test)",
+      "Bash(tsc --noEmit)",
+      "Bash(git status)",
+      "Bash(git diff)",
+      "Bash(git diff *)",
+      "Bash(git log)",
+      "Bash(git log *)",
+      "Bash(docker compose *)",
+      "Bash(docker ps)",
+      "Bash(docker ps *)",
+      "Bash(docker logs *)"
+    ]
+  }
+}
