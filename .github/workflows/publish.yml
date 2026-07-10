@@ -1,12 +1,35 @@
+# Publishes the two release artifacts for expense.crux:
+#   1. @mykks32/expense-crux-contracts -> GitHub Packages (npm registry)
+#   2. apps/backend Docker image        -> GitHub Container Registry (ghcr.io)
+#
+# Trigger: push a version tag, e.g.
+#   git tag v0.1.1 && git push origin v0.1.1
+# or run manually from the Actions tab (workflow_dispatch), e.g. to rebuild
+# an image after a CI-only fix without cutting a new contracts version.
+#
+# One-time repo setup required before this can succeed — see README.md's
+# "Releasing" section:
+#   - Settings -> Actions -> General -> Workflow permissions -> "Read and
+#     write permissions" (the packages: write below is capped by this)
+#   - first run only: link/set visibility on the published packages under
+#     the repo's Packages tab
+#
+# The two jobs are independent and run in parallel: the Docker build
+# compiles packages/contracts from source itself, so it never needs the
+# npm package to have been published first.
 name: Publish
 
 on:
   push:
     tags:
-      - 'v*.*.*'
-  workflow_dispatch: {}
+      - 'v*.*.*' # e.g. v0.1.0, v1.2.3
+  workflow_dispatch: {} # manual re-run from the Actions tab, no tag needed
 
 jobs:
+  # Builds and publishes the shared contracts package to GitHub Packages.
+  # Requires packages/contracts/package.json's "version" to have been
+  # bumped since the last publish — npm/GitHub Packages rejects re-publishing
+  # an existing version.
   publish-contracts:
     runs-on: ubuntu-latest
     permissions:
@@ -19,6 +42,8 @@ jobs:
         with:
           version: 9.0.0
 
+      # registry-url + scope make `pnpm publish` target GitHub Packages
+      # instead of the public npm registry for the @mykks32 scope.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -29,10 +54,14 @@ jobs:
 
       - run: pnpm --filter @mykks32/expense-crux-contracts run build
 
+      # --no-git-checks: CI checks out a detached tag ref, not a branch,
+      # which pnpm would otherwise refuse to publish from.
       - run: pnpm publish --filter @mykks32/expense-crux-contracts --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # Builds apps/backend/Dockerfile's production stage and pushes it to
+  # ghcr.io, tagged with both the semver version and `latest`.
   publish-docker-image:
     runs-on: ubuntu-latest
     permissions:
@@ -41,8 +70,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # QEMU + buildx let a single amd64 GitHub runner cross-build an
+      # arm64 image too (needed for Apple Silicon `docker run` users) —
+      # see platforms below.
       - uses: docker/setup-qemu-action@v3
-
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
@@ -51,6 +82,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Derives the image tags from the triggering ref, e.g. pushing tag
+      # v0.1.1 produces both `ghcr.io/.../expense-crux-backend:0.1.1` and
+      # `:latest`.
       - uses: docker/metadata-action@v5
         id: meta
         with:
@@ -59,6 +93,8 @@ jobs:
             type=semver,pattern={{version}}
             type=raw,value=latest
 
+      # No `target:` needed — `production` is already the last stage in
+      # the Dockerfile, which is what `docker build` uses by default.
       - uses: docker/build-push-action@v6
         with:
           context: .
