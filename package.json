@@ -18,7 +18,7 @@
   "scripts": {
     "build": "pnpm -r run build",
     "start:backend": "pnpm --filter @expense.crux/backend run start",
-    "start:mobile": "pnpm --filter @expense.crux/mobile run start",
+    "start:mobile": "pnpm --filter @expense.crux/mobile run start -c",
     "test": "pnpm -r run test"
   },
   "devDependencies": {
