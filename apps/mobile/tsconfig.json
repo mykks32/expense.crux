@@ -1,10 +1,22 @@
 {
-  "extends": "../../tsconfig.base.json",
+  // Expo's own base — sets JSX/module resolution correctly for Metro/React Native (unlike the repo's root tsconfig.base.json, which is CommonJS/Node-oriented for the backend).
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "declaration": true,
-    "emitDeclarationOnly": false
+    // Turns on the full strict-mode family (noImplicitAny, strictNullChecks, etc.) at once.
+    "strict": true,
+    // arr[i]/obj[key] is typed `T | undefined` instead of `T` — e.g. `items[0].name` now needs a null check first.
+    "noUncheckedIndexedAccess": true,
+    // subclass methods overriding a base method need `override` — e.g. `override componentDidCatch() {}`.
+    "noImplicitOverride": true,
+    // catches a missing `break` — e.g. `case 'a': doThing(); case 'b': ...` silently falling into 'b'.
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      // `@/foo` resolves under src/ — matches the src/app Expo Router auto-detects.
+      "@/*": ["./src/*"],
+      // assets/ deliberately lives outside src/ (icons/splash referenced by app.json too), so it needs its own alias.
+      "@/assets/*": ["./assets/*"]
+    }
   },
-  "include": ["src"]
+  // .expo/types and nativewind-env.d.ts are generated files (route typing, className typing) — must stay included for their ambient types to apply.
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts", "nativewind-env.d.ts"]
 }
