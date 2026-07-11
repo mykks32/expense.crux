@@ -66,6 +66,13 @@ WORKDIR /app
 COPY --chown=node:node --from=build /app/node_modules ./node_modules
 COPY --chown=node:node --from=build /app/apps/backend/node_modules ./apps/backend/node_modules
 
+# apps/backend/node_modules/@mykks32/expense-crux-contracts is a symlink to
+# ../../../../packages/contracts (pnpm's workspace:* link) — its target must
+# exist in this image too, or the symlink dangles and `require()` fails at
+# runtime with MODULE_NOT_FOUND.
+COPY --chown=node:node --from=build /app/packages/contracts/dist ./packages/contracts/dist
+COPY --chown=node:node --from=build /app/packages/contracts/package.json ./packages/contracts/package.json
+
 # Copy compiled output
 COPY --chown=node:node --from=build /app/apps/backend/dist ./apps/backend/dist
 
