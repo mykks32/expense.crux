@@ -45,3 +45,12 @@ Publishing `@mykks32/expense-crux-contracts` (GitHub Packages) and the backend D
 6. **First release only**: on GitHub, open each package under the repo's **Packages** tab (right sidebar) and link it to the repo / set it public if you want it pullable without auth — otherwise consumers need a PAT with `read:packages`.
 
 After the first release, steps 1–2 and 6 are one-time only — every future release is just bump version → tag → push tag.
+
+## Changelog
+
+### contracts 0.1.2 / backend (unreleased)
+
+- **API versioning**: every backend route now lives under `/v1/...` (`app.enableVersioning` in `main.ts`). A future breaking change ships as `/v2/...` without breaking existing mobile installs.
+- **`GET /expenses` filtering/search/sort**: new `category`, `currency`, `search` (partial title match), `minAmount`/`maxAmount`, `dateFrom`/`dateTo`, and `sortBy` (comma-separated `"field:order"`, e.g. `"date:desc,amount:asc"`) query params.
+- **Pagination meta**: `PaginationMeta` gained `hasNextPage`/`hasPreviousPage`.
+- **contracts additions**: `ListExpensesQuery`, `EXPENSE_SORT_FIELDS`, `SORT_ORDERS` — shared source of truth for sortable fields/orders, so the backend's validation and the mobile filter UI can't drift apart.
