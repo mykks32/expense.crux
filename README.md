@@ -48,9 +48,10 @@ After the first release, steps 1–2 and 6 are one-time only — every future re
 
 ## Changelog
 
-### contracts 0.1.2 / backend (unreleased)
+### contracts 0.1.3 / backend (unreleased)
 
 - **API versioning**: every backend route now lives under `/v1/...` (`app.enableVersioning` in `main.ts`). A future breaking change ships as `/v2/...` without breaking existing mobile installs.
 - **`GET /expenses` filtering/search/sort**: new `category`, `currency`, `search` (partial title match), `minAmount`/`maxAmount`, `dateFrom`/`dateTo`, and `sortBy` (comma-separated `"field:order"`, e.g. `"date:desc,amount:asc"`) query params.
 - **Pagination meta**: `PaginationMeta` gained `hasNextPage`/`hasPreviousPage`.
 - **contracts additions**: `ListExpensesQuery`, `EXPENSE_SORT_FIELDS`, `SORT_ORDERS` — shared source of truth for sortable fields/orders, so the backend's validation and the mobile filter UI can't drift apart.
+- **contracts package**: added the `README.md` that GitHub Packages needs to render the package page (0.1.2 published without one).
