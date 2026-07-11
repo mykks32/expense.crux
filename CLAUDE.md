@@ -50,6 +50,10 @@ Build responses via the static factories — never the constructor: `ApiResponse
 
 204 No Content responses (logout, delete) are the one exception — no envelope, no body.
 
+## API versioning
+
+Every route is URI-versioned — `app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' })` in `main.ts` — so all endpoints live under `/v1/...` (e.g. `/v1/auth/login`, `/v1/expenses`) with no per-controller changes needed. Mobile's `apiClient` (`apps/mobile/src/lib/api.ts`) appends `/v1` to `EXPO_PUBLIC_API_URL` once at the `baseURL` level. A future breaking change ships as `/v2/...` (via `@Version('2')` on the affected controller/handler) without breaking mobile installs still on `/v1`.
+
 ## Error handling
 
 Throw `GlobalHttpException(errorCode, httpStatus, additional?)` (`common/exceptions/global-http.exception.ts`) for all expected error conditions — **not** Nest's built-in `NotFoundException`/`UnauthorizedException`/etc. Error codes are a closed set in `common/utils/http-error-code.ts` (`HttpErrorCodeMessage`); add new codes there rather than inlining ad-hoc messages. The global `HttpExceptionFilter` catches every `HttpException`, formats `GlobalHttpException` using its own `errorCode`/`requestId`, and falls back to a generic mapping for anything else (e.g. `ValidationPipe` failures).

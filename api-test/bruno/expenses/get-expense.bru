@@ -1,0 +1,27 @@
+meta {
+  name: Get Expense By Id
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/expenses/{{expenseId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+docs {
+  ## Get Expense By Id
+
+  `GET /expenses/:id` — fetches a single expense owned by the authenticated user. Requires `Authorization: Bearer {{accessToken}}`.
+
+  ### Response
+  `200 OK` — `data`: `{ id, title, amount, currency, category, date, notes }`.
+
+  ### Errors
+  `expenseNotFound` / `expenseForbidden`.
+}

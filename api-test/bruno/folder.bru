@@ -1,0 +1,38 @@
+meta {
+  name: expense-crux-api
+}
+
+docs {
+  # expense.crux API
+
+  Bruno collection for the expense.crux backend (NestJS + MongoDB). Covers every HTTP-facing endpoint: auth (register/login/refresh/logout) and expenses (CRUD + paginated list with filtering/sorting).
+
+  ## Base URL
+
+  Routes are URI-versioned and mount at `/v1/auth` and `/v1/expenses`. Default `http://localhost:3000/v1` (see the `Local` environment, `{{baseUrl}}`).
+
+  ## Response envelope
+
+  Every response (except `204 No Content` on logout/delete) is wrapped:
+
+  ```json
+  {
+    "success": true,
+    "message": "...",
+    "statusCode": 200,
+    "data": {},
+    "meta": {},
+    "links": {},
+    "timestamp": "...",
+    "requestId": "..."
+  }
+  ```
+
+  ## Auth flow
+
+  1. Select the `Local` environment (top-right in Bruno) before running anything.
+  2. Run **auth / Register** or **auth / Login** — their post-response scripts store `accessToken`/`refreshToken` into the environment automatically.
+  3. Every `expenses/*` request reads `{{accessToken}}` from the environment via Bearer auth.
+  4. **auth / Refresh Token** rotates both tokens using the stored `refreshToken`.
+  5. **auth / Logout** revokes the stored refresh token server-side.
+}

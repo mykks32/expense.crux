@@ -1,0 +1,27 @@
+meta {
+  name: Delete Expense
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/expenses/{{expenseId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+docs {
+  ## Delete Expense
+
+  `DELETE /expenses/:id` — deletes an expense owned by the authenticated user. Requires `Authorization: Bearer {{accessToken}}`.
+
+  ### Response
+  `204 No Content` — no envelope, no body.
+
+  ### Errors
+  `expenseNotFound` / `expenseForbidden`.
+}

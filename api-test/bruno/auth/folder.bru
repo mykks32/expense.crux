@@ -1,0 +1,12 @@
+meta {
+  name: auth
+  seq: 1
+}
+
+docs {
+  # Auth
+
+  Registration, login, refresh, and logout. `Register`/`Login`/`Refresh Token` are public; `Logout` requires a Bearer access token.
+
+  Tokens are deliberately asymmetric: access tokens are short-lived (`ACCESS_TOKEN_TTL`, default `15m`), refresh tokens are long-lived (`REFRESH_TOKEN_TTL`, default `7d`) and are rotated on every `/auth/refresh` call. Refresh tokens are never stored raw server-side, only a bcrypt hash.
+}

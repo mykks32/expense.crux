@@ -1,0 +1,45 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "test@example.com",
+    "password": "Password123!",
+    "name": "Test User"
+  }
+}
+
+script:post-response {
+  if (res.body?.data?.accessToken) {
+    bru.setEnvVar("accessToken", res.body.data.accessToken);
+    bru.setEnvVar("refreshToken", res.body.data.refreshToken);
+  }
+}
+
+docs {
+  ## Register
+
+  `POST /auth/register` — creates a new user and issues an initial access/refresh token pair. Public (no auth).
+
+  ### Body
+  | Field | Type | Required | Notes |
+  |---|---|---|---|
+  | `email` | string | yes | |
+  | `password` | string | yes | min 8 chars |
+  | `name` | string | no | |
+
+  ### Response
+  `201 Created` — `data`: `{ accessToken, refreshToken, user: { id, email, name? } }`.
+
+  ### Errors
+  `emailAlreadyRegistered` if the email is already taken.
+}

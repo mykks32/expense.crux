@@ -1,0 +1,41 @@
+meta {
+  name: Refresh Token
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/refresh
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "refreshToken": "{{refreshToken}}"
+  }
+}
+
+script:post-response {
+  if (res.body?.data?.accessToken) {
+    bru.setEnvVar("accessToken", res.body.data.accessToken);
+    bru.setEnvVar("refreshToken", res.body.data.refreshToken);
+  }
+}
+
+docs {
+  ## Refresh Token
+
+  `POST /auth/refresh` — exchanges a valid, unrevoked refresh token for a new access/refresh pair. Refresh tokens rotate on every use (the old one is invalidated). Public (no auth) — the refresh token itself is the credential, sent in the body.
+
+  ### Body
+  | Field | Type | Required |
+  |---|---|---|
+  | `refreshToken` | string | yes (non-empty) |
+
+  ### Response
+  `200 OK` — `data`: `{ accessToken, refreshToken, user }` (new pair).
+
+  ### Errors
+  `invalidRefreshToken` if expired, forged, or already rotated/revoked.
+}

@@ -1,0 +1,10 @@
+meta {
+  name: expenses
+  seq: 2
+}
+
+docs {
+  # Expenses
+
+  CRUD for the authenticated user's expenses. Every route requires `Authorization: Bearer {{accessToken}}` and is scoped to the caller — no expense is visible or mutable across users.
+}

@@ -1,0 +1,53 @@
+meta {
+  name: Create Expense
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/expenses
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "title": "Groceries",
+    "amount": 42.5,
+    "currency": "USD",
+    "category": "food",
+    "date": "2026-07-12T00:00:00.000Z",
+    "notes": "Weekly shop"
+  }
+}
+
+script:post-response {
+  if (res.body?.data?.id) {
+    bru.setEnvVar("expenseId", res.body.data.id);
+  }
+}
+
+docs {
+  ## Create Expense
+
+  `POST /expenses` — creates a new expense owned by the authenticated user. Requires `Authorization: Bearer {{accessToken}}`.
+
+  ### Body
+  | Field | Type | Required | Notes |
+  |---|---|---|---|
+  | `title` | string | yes | min 1 char |
+  | `amount` | number | yes | min 0 |
+  | `currency` | string | no | |
+  | `category` | string | no | |
+  | `date` | ISO8601 string | no | |
+  | `notes` | string | no | |
+
+  ### Response
+  `201 Created` — `data`: `{ id, title, amount, currency, category, date, notes }`.
+
+  The post-response script stores the new `id` as `{{expenseId}}` for the other requests in this folder.
+}

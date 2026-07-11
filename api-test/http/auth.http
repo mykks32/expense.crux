@@ -1,0 +1,35 @@
+@baseUrl = http://localhost:3000/v1
+
+### Register a new user
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Password123!",
+  "name": "Test User"
+}
+
+### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Password123!"
+}
+
+### Refresh token (uses refreshToken from the login response above)
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.$.data.refreshToken}}"
+}
+
+### Logout (uses accessToken from the login response above)
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{login.response.body.$.data.accessToken}}

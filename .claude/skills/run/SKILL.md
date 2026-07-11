@@ -19,7 +19,7 @@ docker compose up --build
 - MongoDB: `localhost:27017`
 - Manual API testing: `.http` files in `apps/backend/http/` (REST Client / IntelliJ HTTP Client format)
 
-Health check: `curl -s http://localhost:3000/expenses` should return a `401` `ApiResponseSerializer` envelope (no auth token) rather than a connection error.
+Health check: `curl -s http://localhost:3000/v1/expenses` should return a `401` `ApiResponseSerializer` envelope (no auth token) rather than a connection error. All routes are URI-versioned (`main.ts`'s `enableVersioning`) — `/expenses` with no `/v1` prefix now 404s.
 
 ## Docker compose, published GHCR image instead of building
 

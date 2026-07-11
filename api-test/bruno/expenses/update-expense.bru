@@ -1,0 +1,36 @@
+meta {
+  name: Update Expense
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/expenses/{{expenseId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "amount": 50
+  }
+}
+
+docs {
+  ## Update Expense
+
+  `PATCH /expenses/:id` — partially updates an expense owned by the authenticated user. Requires `Authorization: Bearer {{accessToken}}`.
+
+  ### Body
+  All fields from Create Expense, all optional: `title`, `amount`, `currency`, `category`, `date`, `notes`. Only send the fields you want to change.
+
+  ### Response
+  `200 OK` — `data`: the updated expense.
+
+  ### Errors
+  `expenseNotFound` / `expenseForbidden`.
+}

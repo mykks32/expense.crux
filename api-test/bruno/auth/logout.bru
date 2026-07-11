@@ -1,0 +1,23 @@
+meta {
+  name: Logout
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/auth/logout
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+docs {
+  ## Logout
+
+  `POST /auth/logout` — revokes the caller's stored refresh token, ending the session. Requires `Authorization: Bearer {{accessToken}}`.
+
+  ### Response
+  `204 No Content` — no envelope, no body.
+}

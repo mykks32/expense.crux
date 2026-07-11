@@ -1,0 +1,53 @@
+meta {
+  name: List Expenses
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/expenses?page=1&limit=10&sortBy=date:desc
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 10
+  sortBy: date:desc
+  ~category: food
+  ~currency: USD
+  ~search: grocer
+  ~minAmount: 0
+  ~maxAmount: 1000
+  ~dateFrom: 2026-01-01T00:00:00.000Z
+  ~dateTo: 2026-12-31T23:59:59.000Z
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+docs {
+  ## List Expenses
+
+  `GET /expenses` — paginated list of the authenticated user's expenses, with optional filtering and sorting. Requires `Authorization: Bearer {{accessToken}}`.
+
+  ### Query params
+  | Param | Type | Default | Notes |
+  |---|---|---|---|
+  | `page` | number | `1` | 1-indexed, must be >= 1 |
+  | `limit` | number | `10` | page size, must be >= 1 |
+  | `category` | string | — | exact match |
+  | `currency` | string | — | exact match |
+  | `search` | string | — | case-insensitive partial match on `title` |
+  | `minAmount` | number | — | inclusive lower bound on `amount`, must be >= 0 |
+  | `maxAmount` | number | — | inclusive upper bound on `amount`, must be >= 0 |
+  | `dateFrom` | ISO8601 string | — | inclusive lower bound on `date` |
+  | `dateTo` | ISO8601 string | — | inclusive upper bound on `date` |
+  | `sortBy` | string | — | comma-separated `field:order` pairs; fields: `date`, `amount`, `title`; order: `asc`, `desc` (e.g. `date:desc,amount:asc`) |
+
+  All params beyond `page`/`limit`/`sortBy` are disabled by default in the **Params** tab (shown with `~`) — enable the ones you want to test.
+
+  ### Response
+  `200 OK` — `data`: array of expenses. `meta`: `{ totalItems, itemsPerPage, totalPages, page, hasNextPage, hasPreviousPage }`. `links`: `{ current, next, previous }`.
+}

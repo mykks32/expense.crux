@@ -1,0 +1,43 @@
+@baseUrl = http://localhost:3000/v1
+@accessToken = paste-access-token-here
+
+### Create expense
+# @name createExpense
+POST {{baseUrl}}/expenses
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Groceries",
+  "amount": 42.5,
+  "currency": "USD",
+  "category": "food",
+  "date": "2026-07-12T00:00:00.000Z",
+  "notes": "Weekly shop"
+}
+
+### List expenses (pagination + filtering + sorting)
+# Query params: page, limit (pagination, default 1/10)
+#               category, currency, search (exact/exact/partial-title match)
+#               minAmount, maxAmount (inclusive amount range)
+#               dateFrom, dateTo (inclusive ISO8601 date range)
+#               sortBy (comma-separated "field:order", fields: date|amount|title, order: asc|desc)
+GET {{baseUrl}}/expenses?page=1&limit=10&category=food&currency=USD&search=grocer&minAmount=0&maxAmount=1000&dateFrom=2026-01-01T00:00:00.000Z&dateTo=2026-12-31T23:59:59.000Z&sortBy=date:desc,amount:asc
+Authorization: Bearer {{accessToken}}
+
+### Get expense by id (uses id from the create response above)
+GET {{baseUrl}}/expenses/{{createExpense.response.body.$.data.id}}
+Authorization: Bearer {{accessToken}}
+
+### Update expense (uses id from the create response above)
+PATCH {{baseUrl}}/expenses/{{createExpense.response.body.$.data.id}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "amount": 50
+}
+
+### Delete expense (uses id from the create response above)
+DELETE {{baseUrl}}/expenses/{{createExpense.response.body.$.data.id}}
+Authorization: Bearer {{accessToken}}
