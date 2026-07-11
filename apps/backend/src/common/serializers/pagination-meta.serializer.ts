@@ -17,4 +17,10 @@ export class PaginationMetaSerializer implements PaginationMeta {
 
   @Expose()
   page: number;
+
+  @Expose()
+  hasNextPage: boolean;
+
+  @Expose()
+  hasPreviousPage: boolean;
 }

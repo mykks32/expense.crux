@@ -20,8 +20,12 @@ export class ExpenseSerializer implements ExpenseContract {
   @Expose()
   category?: string;
 
+  // Idempotent on purpose: the global ClassSerializerInterceptor (main.ts)
+  // re-processes every controller return value, running this @Transform a
+  // second time on the already-stringified result — must handle both a real
+  // Date (first pass) and an already-ISO string (second pass) without throwing.
   @Expose()
-  @Transform(({ value }) => (value as Date).toISOString())
+  @Transform(({ value }) => (value instanceof Date ? value.toISOString() : (value as string)))
   date: string;
 
   @Expose()

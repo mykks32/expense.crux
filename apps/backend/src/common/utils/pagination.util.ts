@@ -44,6 +44,8 @@ export function buildPagination(totalItems: number, query: PaginationQueryDto, r
   meta.itemsPerPage = limit;
   meta.totalPages = totalPages;
   meta.page = page;
+  meta.hasNextPage = page < totalPages;
+  meta.hasPreviousPage = page > 1;
 
   const links = new PaginationLinksSerializer();
   links.current = linkFor(req, page, limit);

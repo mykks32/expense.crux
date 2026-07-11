@@ -4,7 +4,7 @@ import { ExpenseRepository, PaginatedExpenses } from '../repositories/expense.re
 import { Expense } from '../entities/expense.entity';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { ListExpensesQueryDto } from '../dto/list-expenses-query.dto';
 import { GlobalHttpException } from '../../common/exceptions/global-http.exception';
 
 /**
@@ -32,14 +32,24 @@ export class ExpensesService {
   }
 
   /**
-   * Lists a page of the user's expenses, most recent first.
+   * Lists a page of the user's expenses, filtered/sorted per the query.
    *
    * @param userId - The owning user's id.
-   * @param query - Pagination params (`skip`/`limit`).
+   * @param query - Pagination params plus category/currency/search/amount-range/date-range/sort options.
    * @returns The page of expenses plus the total count across all pages.
    */
-  findAll(userId: string, query: PaginationQueryDto): Promise<PaginatedExpenses> {
-    return this.expenseRepository.findAllByUserPaginated(new Types.ObjectId(userId), query.skip, query.limit);
+  findAll(userId: string, query: ListExpensesQueryDto): Promise<PaginatedExpenses> {
+    const { category, currency, search, minAmount, maxAmount, dateFrom, dateTo, sortBy } = query;
+    return this.expenseRepository.findAllByUserPaginated(new Types.ObjectId(userId), query.skip, query.limit, {
+      category,
+      currency,
+      search,
+      minAmount,
+      maxAmount,
+      dateFrom,
+      dateTo,
+      sortBy,
+    });
   }
 
   /**

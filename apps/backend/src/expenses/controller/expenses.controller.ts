@@ -18,12 +18,12 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { RequestUser } from '../../common/interfaces/request-user.interface';
 import { RequestId } from '../../common/decorators/request-id.decorator';
 import { ApiResponseSerializer } from '../../common/serializers/api-response.serializer';
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { buildPagination } from '../../common/utils/pagination.util';
 import { serialize } from '../../common/utils/serialize.util';
 import { ExpensesService } from '../service/expenses.service';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
+import { ListExpensesQueryDto } from '../dto/list-expenses-query.dto';
 import { ExpenseSerializer } from '../serializers/expense.serializer';
 
 /**
@@ -55,10 +55,11 @@ export class ExpensesController {
   }
 
   /**
-   * Lists the authenticated user's expenses, newest first, paginated.
+   * Lists the authenticated user's expenses, paginated, with optional
+   * category/currency/search/amount-range/date-range filters and sorting.
    *
    * @param user - The authenticated user.
-   * @param query - Pagination params (`page`, `limit`).
+   * @param query - Pagination, filter, and sort params.
    * @param req - The current request, for building absolute links.
    * @param requestId - Correlation id read from the `x-request-id` header.
    * @returns `200 OK` envelope with the page of expenses plus `meta`/`links`.
@@ -66,7 +67,7 @@ export class ExpensesController {
   @Get()
   async findAll(
     @CurrentUser() user: RequestUser,
-    @Query() query: PaginationQueryDto,
+    @Query() query: ListExpensesQueryDto,
     @Req() req: Request,
     @RequestId() requestId?: string,
   ): Promise<ApiResponseSerializer<ExpenseSerializer[]>> {
