@@ -10,7 +10,7 @@ export default function LoginScreen() {
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
   return (
-    <KeyboardAwareScreen>
+    <KeyboardAwareScreen centered>
       <View className="flex-row justify-end">
         <IconButton icon={theme === 'light' ? 'weather-night' : 'weather-sunny'} onPress={toggleTheme} />
       </View>
