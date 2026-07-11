@@ -1,16 +1,34 @@
 {
   "compilerOptions": {
+    // JS features assumed available at runtime — safe since we run on Node 18+.
     "target": "ES2022",
+    // Node's native module system — backend runs via `require`, not ESM `import`.
     "module": "commonjs",
+    // Resolves imports the way Node's `require` does (node_modules lookup, package.json "main").
     "moduleResolution": "node",
+    // Turns on the full strict-mode family (noImplicitAny, strictNullChecks, etc.) at once.
     "strict": true,
+    // Off because decorator-initialized fields (Mongoose @Prop(), class-validator @IsString()) aren't set in constructors.
     "strictPropertyInitialization": false,
+    // arr[i]/obj[key] is typed `T | undefined` instead of `T` — e.g. `items[0].name` now needs a null check first.
+    "noUncheckedIndexedAccess": true,
+    // subclass methods overriding a base method need `override` — e.g. `override componentDidCatch() {}`.
+    "noImplicitOverride": true,
+    // catches a missing `break` — e.g. `case 'a': doThing(); case 'b': ...` silently falling into 'b'.
+    "noFallthroughCasesInSwitch": true,
+    // lets `import x from 'cjs-package'` work for CommonJS packages without a default export.
     "esModuleInterop": true,
+    // skips type-checking .d.ts files in node_modules — faster builds, avoids third-party type conflicts.
     "skipLibCheck": true,
+    // catches import-path casing mismatches (e.g. `./Foo` vs `./foo`) that break on case-sensitive filesystems (Linux/CI).
     "forceConsistentCasingInFileNames": true,
+    // enables `@Decorator()` syntax — required by NestJS DI, Mongoose @Prop(), class-validator.
     "experimentalDecorators": true,
+    // emits type metadata for decorators — required for NestJS to resolve constructor param types at runtime.
     "emitDecoratorMetadata": true,
+    // emits .d.ts files alongside compiled JS — packages/contracts is consumed by other workspace packages.
     "declaration": true,
+    // emits .js.map files so debuggers/stack traces map back to the original TS lines.
     "sourceMap": true
   }
 }

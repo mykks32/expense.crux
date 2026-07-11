@@ -1,9 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    // compiled JS/.d.ts/.js.map output goes here — this is what `dist/main.js` (package.json "main") actually runs.
     "outDir": "./dist",
+    // only src/ is compiled — keeps http/ (REST client scratch files) and dist/ itself out of the build.
     "rootDir": "./src",
+    // redeclared here (already true in the base) just to make explicit that this app emits .d.ts output.
     "declaration": true,
+    // emit real .js files too, not just .d.ts — overrides the base's implicit default so `tsc` produces a runnable build.
     "emitDeclarationOnly": false
   },
   "include": ["src"]
