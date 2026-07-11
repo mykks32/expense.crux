@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { FlatList, RefreshControl, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Appbar, Badge, Divider, FAB, IconButton, List, Searchbar, Text, useTheme } from 'react-native-paper';
+import { Appbar, Badge, Button, Divider, FAB, IconButton, List, Menu, Searchbar, Text, useTheme } from 'react-native-paper';
 
 import useAuthStore from '@/features/auth/store';
 import useThemeStore from '@/features/theme/store';
@@ -11,7 +11,8 @@ import * as expensesApi from '@/features/expenses/api';
 import { DEFAULT_FILTERS, hasActiveFilters, toListExpensesQuery, type ExpenseFiltersState } from '@/features/expenses/filters';
 import { ExpenseFiltersModal } from '@/features/expenses/components/expense-filters-modal';
 
-const PAGE_LIMIT = 20;
+const PAGE_SIZE_OPTIONS = [10, 20, 50];
+const DEFAULT_PAGE_LIMIT = 20;
 const SEARCH_DEBOUNCE_MS = 400;
 
 export default function ExpensesListScreen() {
@@ -26,6 +27,8 @@ export default function ExpensesListScreen() {
   const [filters, setFilters] = useState<ExpenseFiltersState>(DEFAULT_FILTERS);
   const [isFiltersModalVisible, setIsFiltersModalVisible] = useState(false);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_LIMIT);
+  const [isPageSizeMenuVisible, setIsPageSizeMenuVisible] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(searchInput), SEARCH_DEBOUNCE_MS);
@@ -41,12 +44,13 @@ export default function ExpensesListScreen() {
   }, [querySignature]);
 
   const { data, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ['expenses', query, page],
-    queryFn: () => expensesApi.listExpenses({ ...query, page, limit: PAGE_LIMIT }),
+    queryKey: ['expenses', query, page, pageSize],
+    queryFn: () => expensesApi.listExpenses({ ...query, page, limit: pageSize }),
   });
 
   const expenses = data?.items ?? [];
   const meta = data?.meta;
+  const isPaginationBarVisible = !!meta && meta.totalItems > 0;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: paperTheme.colors.background }}>
@@ -91,11 +95,33 @@ export default function ExpensesListScreen() {
         )}
       />
 
-      {meta && meta.totalItems > 0 && (
+      {isPaginationBarVisible && meta && (
         <View
           className="flex-row items-center justify-center gap-4 py-2"
           style={{ borderTopWidth: 1, borderTopColor: paperTheme.colors.outlineVariant }}
         >
+          <Menu
+            visible={isPageSizeMenuVisible}
+            onDismiss={() => setIsPageSizeMenuVisible(false)}
+            anchor={
+              <Button mode="text" compact onPress={() => setIsPageSizeMenuVisible(true)}>
+                {pageSize} / page
+              </Button>
+            }
+          >
+            {PAGE_SIZE_OPTIONS.map((size) => (
+              <Menu.Item
+                key={size}
+                title={`${size} / page`}
+                onPress={() => {
+                  setPageSize(size);
+                  setPage(1);
+                  setIsPageSizeMenuVisible(false);
+                }}
+              />
+            ))}
+          </Menu>
+
           <IconButton icon="chevron-left" disabled={!meta.hasPreviousPage} onPress={() => setPage((p) => p - 1)} />
           <Text variant="bodyMedium">
             Page {meta.page} of {meta.totalPages}
@@ -104,7 +130,11 @@ export default function ExpensesListScreen() {
         </View>
       )}
 
-      <FAB icon="plus" style={{ position: 'absolute', bottom: 24, right: 24 }} onPress={() => router.push('/expenses/new')} />
+      <FAB
+        icon="plus"
+        style={{ position: 'absolute', bottom: isPaginationBarVisible ? 88 : 24, right: 24 }}
+        onPress={() => router.push('/expenses/new')}
+      />
 
       <ExpenseFiltersModal
         visible={isFiltersModalVisible}
