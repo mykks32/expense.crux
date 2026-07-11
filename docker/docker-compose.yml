@@ -8,9 +8,14 @@ services:
 
   # Backend API
   backend:
+    # Run locally (build from source):
+    # cp ../env/backend.env.example ../env/backend.env (MONGO_URI host "mongo"), then `docker compose up --build`.
     build:
       context: ..
       dockerfile: apps/backend/Dockerfile
+    # Run the published image instead: comment out `build:` above, uncomment `image:` below.
+    # `docker login ghcr.io` first if private, then `docker compose up`.
+    # image: ghcr.io/mykks32/expense-crux-backend:latest
     container_name: expense-crux-backend
     networks:
       - expense-crux-net
@@ -38,7 +43,7 @@ services:
     volumes:
       - mongo-data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
       interval: 5s
       timeout: 5s
       retries: 5

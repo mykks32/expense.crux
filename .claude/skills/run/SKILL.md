@@ -5,9 +5,9 @@ description: Launch expense.crux locally via Docker Compose (backend + MongoDB) 
 
 # Running expense.crux
 
-All env vars come from a single `env/backend.env` (git-ignored) — copy `env/backend.env.example` there first and fill in real secrets. `MONGO_URI`'s host depends on how you run it (see the comment in that file): `localhost` for local dev, `mongo` for docker compose, `expense-crux-mongo` for `scripts/run.sh`.
+All env vars come from a single `env/backend.env` (git-ignored) — copy `env/backend.env.example` there first and fill in real secrets. `MONGO_URI`'s host depends on how you run it (see the comment in that file): `localhost` for local dev, `mongo` for docker compose (either mode below).
 
-## Docker compose (preferred — starts backend + MongoDB together)
+## Docker compose, build from local Dockerfile (default)
 
 ```bash
 cp env/backend.env.example env/backend.env   # first time only; use MONGO_URI host "mongo"
@@ -21,14 +21,17 @@ docker compose up --build
 
 Health check: `curl -s http://localhost:3000/expenses` should return a `401` `ApiResponseSerializer` envelope (no auth token) rather than a connection error.
 
-## Published image, no compose
+## Docker compose, published GHCR image instead of building
+
+`docker/docker-compose.yml`'s `backend` service builds from the local Dockerfile by default. Edit that one file to switch: comment out its `build:` block and uncomment the `image: ghcr.io/mykks32/expense-crux-backend:latest` line above it, then:
 
 ```bash
-cp env/backend.env.example env/backend.env   # first time only; use MONGO_URI host "expense-crux-mongo"
-scripts/run.sh
+cp env/backend.env.example env/backend.env   # first time only; use MONGO_URI host "mongo"
+cd docker
+docker compose up
 ```
 
-Runs the `ghcr.io/mykks32/expense-crux-backend` image alongside a Mongo container on a shared Docker network.
+If the GHCR package is private, run `docker login ghcr.io` with a PAT that has `read:packages` first.
 
 ## Local (no Docker for the backend)
 

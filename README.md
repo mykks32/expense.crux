@@ -4,11 +4,10 @@ Expense tracking monorepo: NestJS backend (`apps/backend`), mobile app (`apps/mo
 
 ## Environment file
 
-One shared template: copy `env/backend.env.example` to `env/backend.env` (git-ignored via `env/*.env`) and fill in real secrets. It's used for local dev, docker compose, and `scripts/run.sh` alike — the only thing you edit per run mode is `MONGO_URI`'s host (see the comment in the file):
+One shared template: copy `env/backend.env.example` to `env/backend.env` (git-ignored via `env/*.env`) and fill in real secrets. It's used for local dev and docker compose alike — the only thing you edit per run mode is `MONGO_URI`'s host (see the comment in the file):
 
 - local (non-Docker) dev → `localhost`
 - docker compose → `mongo` (the compose service name)
-- `scripts/run.sh` → `expense-crux-mongo` (the container name it creates)
 
 Mixing these up is the most common way this breaks (backend hangs retrying `ECONNREFUSED`).
 
@@ -24,11 +23,12 @@ Backend on `http://localhost:3000`, MongoDB on `:27017`. See `apps/backend/http/
 
 ## Running the published backend image
 
-No compose needed — `scripts/run.sh` runs the image alongside a Mongo container on a shared Docker network, and warns if you forgot to fill in the env file or still have the wrong Mongo host:
+`docker/docker-compose.yml`'s `backend` service builds from the local Dockerfile by default. To run the published GHCR image instead, edit that file: comment out `build:` and uncomment the `image:` line above it, then:
 
 ```bash
-cp env/backend.env.example env/backend.env   # first time only — use MONGO_URI host "expense-crux-mongo"
-scripts/run.sh
+cp env/backend.env.example env/backend.env   # first time only — use MONGO_URI host "mongo"
+cd docker
+docker compose up
 ```
 
 If the GHCR package is private, run `docker login ghcr.io` with a PAT that has `read:packages` first.
