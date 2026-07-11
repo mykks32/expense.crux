@@ -21,14 +21,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  /**
-   * Called by Passport once the token's signature and expiry check out.
-   * Maps the JWT payload to the shape attached to `request.user`.
-   *
-   * @param payload - The decoded, verified JWT payload.
-   * @returns The authenticated user info exposed via `@CurrentUser()`.
-   */
-  async validate(payload: JwtPayload): Promise<RequestUser> {
+  /** Called by Passport once the token's signature/expiry check out; maps the payload to `request.user`. */
+  validate(payload: JwtPayload): RequestUser {
     return { userId: payload.sub, email: payload.email };
   }
 }

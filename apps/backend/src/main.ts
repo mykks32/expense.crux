@@ -6,13 +6,7 @@ import { AppModule } from './app.module';
 import { appConfig } from './config/app.config';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
-/**
- * Boots the Nest application: wires global validation, response
- * serialization, and error formatting, then starts listening on the
- * configured port.
- *
- * @returns Resolves once the HTTP server is listening.
- */
+/** Boots the Nest app: wires global validation, response serialization, and error formatting, then starts listening. */
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
@@ -24,4 +18,7 @@ async function bootstrap(): Promise<void> {
   await app.listen(port);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Failed to bootstrap application:', err);
+  process.exitCode = 1;
+});
