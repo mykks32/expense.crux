@@ -39,11 +39,7 @@ export class ExpensesService {
    * @returns The page of expenses plus the total count across all pages.
    */
   findAll(userId: string, query: PaginationQueryDto): Promise<PaginatedExpenses> {
-    return this.expenseRepository.findAllByUserPaginated(
-      new Types.ObjectId(userId),
-      query.skip,
-      query.limit,
-    );
+    return this.expenseRepository.findAllByUserPaginated(new Types.ObjectId(userId), query.skip, query.limit);
   }
 
   /**

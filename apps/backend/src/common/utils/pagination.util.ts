@@ -35,11 +35,7 @@ function linkFor(req: Request, page: number, limit: number): string {
  * @param req - The current request, used to build fully qualified links.
  * @returns The computed `meta` and `links`.
  */
-export function buildPagination(
-  totalItems: number,
-  query: PaginationQueryDto,
-  req: Request,
-): PaginationResult {
+export function buildPagination(totalItems: number, query: PaginationQueryDto, req: Request): PaginationResult {
   const { page, limit } = query;
   const totalPages = Math.max(1, Math.ceil(totalItems / limit));
 
