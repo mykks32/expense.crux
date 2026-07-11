@@ -42,6 +42,11 @@ function normalizeError(error: unknown): ApiError {
   return toApiError(error as AxiosError<ApiResponse<unknown>>);
 }
 
+/** Shared fallback message for mutation errors that aren't a normalized {@link ApiError}. */
+export function getApiErrorMessage(error: unknown): string {
+  return error instanceof ApiError ? error.message : 'Something went wrong. Try again.';
+}
+
 const AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh'];
 
 function isAuthPath(url?: string): boolean {

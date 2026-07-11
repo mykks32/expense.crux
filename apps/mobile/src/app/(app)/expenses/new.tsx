@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { KeyboardAwareScreen } from '@/components/keyboard-aware-screen';
-import { ApiError } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/api';
 import { ExpenseForm } from '@/features/expenses/components/expense-form';
 import type { ExpenseFormValues } from '@/features/expenses/schema';
 import * as expensesApi from '@/features/expenses/api';
@@ -35,7 +35,7 @@ export default function NewExpenseScreen() {
       <ExpenseForm
         submitLabel="Add expense"
         isSubmitting={mutation.isPending}
-        submitError={mutation.isError ? (mutation.error instanceof ApiError ? mutation.error.message : 'Something went wrong. Try again.') : null}
+        submitError={mutation.isError ? getApiErrorMessage(mutation.error) : null}
         onSubmit={(values) => mutation.mutate(values)}
       />
     </KeyboardAwareScreen>

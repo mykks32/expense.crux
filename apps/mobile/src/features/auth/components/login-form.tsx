@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { View } from 'react-native';
 import { Button, HelperText, Text, TextInput, useTheme } from 'react-native-paper';
 
-import { ApiError } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/api';
 import useAuthStore from '@/features/auth/store';
 import { loginSchema, type LoginFormValues } from '@/features/auth/schema';
 
@@ -84,7 +84,7 @@ export function LoginForm() {
       </HelperText>
 
       <HelperText type="error" visible={mutation.isError}>
-        {mutation.error instanceof ApiError ? mutation.error.message : 'Something went wrong. Try again.'}
+        {getApiErrorMessage(mutation.error)}
       </HelperText>
 
       <Button mode="contained" onPress={handleSubmit(onSubmit)} loading={mutation.isPending} className="mt-2">

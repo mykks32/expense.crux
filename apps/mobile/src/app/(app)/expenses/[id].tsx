@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ActivityIndicator, Button, useTheme } from 'react-native-paper';
 
 import { KeyboardAwareScreen } from '@/components/keyboard-aware-screen';
-import { ApiError } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/api';
 import { ExpenseForm } from '@/features/expenses/components/expense-form';
 import type { ExpenseFormValues } from '@/features/expenses/schema';
 import * as expensesApi from '@/features/expenses/api';
@@ -56,7 +56,7 @@ export default function EditExpenseScreen() {
             showToast('Expense deleted');
           } catch (err) {
             setIsDeleting(false);
-            showToast(err instanceof ApiError ? err.message : 'Failed to delete. Try again.');
+            showToast(getApiErrorMessage(err));
           }
         },
       },
@@ -65,7 +65,7 @@ export default function EditExpenseScreen() {
 
   if (isLoading || !expense) {
     return (
-      <KeyboardAwareScreen>
+      <KeyboardAwareScreen centered>
         <ActivityIndicator />
       </KeyboardAwareScreen>
     );
@@ -76,13 +76,7 @@ export default function EditExpenseScreen() {
       <ExpenseForm
         submitLabel="Save changes"
         isSubmitting={updateMutation.isPending}
-        submitError={
-          updateMutation.isError
-            ? updateMutation.error instanceof ApiError
-              ? updateMutation.error.message
-              : 'Something went wrong. Try again.'
-            : null
-        }
+        submitError={updateMutation.isError ? getApiErrorMessage(updateMutation.error) : null}
         defaultValues={{
           title: expense.title,
           amount: String(expense.amount),
@@ -94,11 +88,9 @@ export default function EditExpenseScreen() {
         onSubmit={(values) => updateMutation.mutate(values)}
       />
 
-      <View className="mt-4">
-        <Button mode="outlined" textColor={theme.colors.error} loading={isDeleting} onPress={handleDelete}>
-          Delete expense
-        </Button>
-      </View>
+      <Button mode="outlined" textColor={theme.colors.error} loading={isDeleting} onPress={handleDelete} className="mt-4">
+        Delete expense
+      </Button>
     </KeyboardAwareScreen>
   );
 }
