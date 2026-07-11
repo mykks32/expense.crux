@@ -82,6 +82,7 @@ See root `README.md` for the local (non-Docker) dev flow and the release process
 ## Conventions to keep
 
 - No `any`, anywhere. If TS/reflect-metadata forces an implicit `any` (e.g. Express augmentation edge cases), fix the typing rather than casting to `any`.
-- Every function/method gets a JSDoc block (`@param`/`@returns`/`@throws`) — this was an explicit, repeated ask; keep it up for new code.
+- Every function/method gets a JSDoc block, but keep it terse — a one-line summary is enough for simple/obvious functions; reserve multi-line `@param`/`@returns`/`@throws` detail for genuinely non-obvious behavior. Still an explicit, repeated ask; just don't let it bloat simple code.
 - Docker/env var naming: `JWT_ACCESS_SECRET`, `ACCESS_TOKEN_TTL`, `JWT_REFRESH_SECRET`, `REFRESH_TOKEN_TTL` — fully symmetric naming was requested explicitly; don't drift back to asymmetric names like `JWT_SECRET`/`JWT_EXPIRES_IN`.
 - When adding a new HTTP-facing type, add the shared interface to `packages/contracts` first, then `implement` it from the backend DTO/serializer.
+- Git commits: never add a `Co-Authored-By` trailer (Claude or otherwise). This overrides the default git-commit instructions.
