@@ -9,6 +9,8 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 /** Boots the Nest app: wires global validation, response serialization, and error formatting, then starts listening. */
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalFilters(new HttpExceptionFilter());
