@@ -18,11 +18,14 @@ else
   exit 1
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 NETWORK="expense-crux-standalone"
 MONGO_CONTAINER="expense-crux-mongo"
 BACKEND_CONTAINER="expense-crux-backend"
 IMAGE="ghcr.io/mykks32/expense-crux-backend:latest"
-ENV_FILE="${1:-env/backend.env}"
+ENV_FILE="${1:-$REPO_ROOT/env/backend.env}"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "error: $ENV_FILE not found." >&2
@@ -44,7 +47,7 @@ fi
 "$DOCKER" network inspect "$NETWORK" >/dev/null 2>&1 || "$DOCKER" network create "$NETWORK"
 
 "$DOCKER" rm -f "$MONGO_CONTAINER" >/dev/null 2>&1 || true
-"$DOCKER" run -d --name "$MONGO_CONTAINER" --network "$NETWORK" \
+"$DOCKER" run -d --name "$MONGO_CONTAINER" --network "$NETWORK" -p 27017:27017 \
   -e MONGO_INITDB_ROOT_USERNAME=mongo \
   -e MONGO_INITDB_ROOT_PASSWORD=mongo \
   -e MONGO_INITDB_DATABASE=expense_crux \
