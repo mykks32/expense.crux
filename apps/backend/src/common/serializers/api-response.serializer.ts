@@ -1,5 +1,6 @@
 import { ApiResponse as ApiResponseContract } from '@mykks32/expense-crux-contracts';
-import { Expose, Type, plainToInstance } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
+import { serialize } from '../utils/serialize.util';
 import { PaginationLinksSerializer } from './pagination-links.serializer';
 import { PaginationMetaSerializer } from './pagination-meta.serializer';
 
@@ -54,11 +55,14 @@ export class ApiResponseSerializer<T> implements ApiResponseContract<T> {
     options: { message?: string; statusCode?: number; requestId?: string } = {},
   ): ApiResponseSerializer<R> {
     const { message = 'Success', statusCode = 200, requestId } = options;
-    return plainToInstance(
-      ApiResponseSerializer,
-      { success: true, message, statusCode, data, timestamp: new Date().toISOString(), requestId },
-      { excludeExtraneousValues: true },
-    ) as ApiResponseSerializer<R>;
+    return serialize(ApiResponseSerializer, {
+      success: true,
+      message,
+      statusCode,
+      data,
+      timestamp: new Date().toISOString(),
+      requestId,
+    }) as ApiResponseSerializer<R>;
   }
 
   /**
@@ -70,10 +74,7 @@ export class ApiResponseSerializer<T> implements ApiResponseContract<T> {
    * @param options.requestId - Correlation id to echo back.
    * @returns The envelope with `success: true`, `statusCode: 201`.
    */
-  static created<R>(
-    data: R,
-    options: { message?: string; requestId?: string } = {},
-  ): ApiResponseSerializer<R> {
+  static created<R>(data: R, options: { message?: string; requestId?: string } = {}): ApiResponseSerializer<R> {
     return ApiResponseSerializer.ok(data, {
       ...options,
       message: options.message ?? 'Created',
@@ -100,19 +101,15 @@ export class ApiResponseSerializer<T> implements ApiResponseContract<T> {
     requestId?: string;
   }): ApiResponseSerializer<null> {
     const { errorName, message, statusCode = 500, requestId } = options;
-    return plainToInstance(
-      ApiResponseSerializer,
-      {
-        success: false,
-        errorName,
-        message,
-        statusCode,
-        data: null,
-        timestamp: new Date().toISOString(),
-        requestId,
-      },
-      { excludeExtraneousValues: true },
-    ) as ApiResponseSerializer<null>;
+    return serialize(ApiResponseSerializer, {
+      success: false,
+      errorName,
+      message,
+      statusCode,
+      data: null,
+      timestamp: new Date().toISOString(),
+      requestId,
+    }) as ApiResponseSerializer<null>;
   }
 
   /**
@@ -133,19 +130,15 @@ export class ApiResponseSerializer<T> implements ApiResponseContract<T> {
     options: { message?: string; statusCode?: number; requestId?: string } = {},
   ): ApiResponseSerializer<R[]> {
     const { message = 'Success', statusCode = 200, requestId } = options;
-    return plainToInstance(
-      ApiResponseSerializer,
-      {
-        success: true,
-        message,
-        statusCode,
-        data: items,
-        meta,
-        links,
-        timestamp: new Date().toISOString(),
-        requestId,
-      },
-      { excludeExtraneousValues: true },
-    ) as ApiResponseSerializer<R[]>;
+    return serialize(ApiResponseSerializer, {
+      success: true,
+      message,
+      statusCode,
+      data: items,
+      meta,
+      links,
+      timestamp: new Date().toISOString(),
+      requestId,
+    }) as ApiResponseSerializer<R[]>;
   }
 }

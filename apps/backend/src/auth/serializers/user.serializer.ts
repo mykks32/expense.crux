@@ -1,14 +1,11 @@
 import { User as UserContract } from '@mykks32/expense-crux-contracts';
-import { Expose, plainToInstance } from 'class-transformer';
-import { User } from '../entities/user.entity';
+import { Expose, Transform } from 'class-transformer';
+import { resolveId } from '../../common/utils/serialize.util';
 
-/**
- * Public, wire-safe view of a {@link User} — never includes `passwordHash`
- * or `refreshTokenHash`. Satisfies the shared `User` contract so mobile can
- * rely on the same shape.
- */
+/** Public, wire-safe view of a {@link User} — never includes `passwordHash`/`refreshTokenHash`. Build via {@link serialize} (`common/utils/serialize.util.ts`), passing the Mongoose document straight through. */
 export class UserSerializer implements UserContract {
   @Expose()
+  @Transform(({ obj }) => resolveId(obj as { _id?: unknown; id?: unknown }))
   id: string;
 
   @Expose()
@@ -16,19 +13,4 @@ export class UserSerializer implements UserContract {
 
   @Expose()
   name?: string;
-
-  /**
-   * Builds a {@link UserSerializer} from a Mongoose `User` document,
-   * dropping every field not explicitly `@Expose()`d.
-   *
-   * @param user - The source user document.
-   * @returns The public user view.
-   */
-  static fromEntity(user: User): UserSerializer {
-    return plainToInstance(
-      UserSerializer,
-      { id: user.id, email: user.email, name: user.name },
-      { excludeExtraneousValues: true },
-    );
-  }
 }

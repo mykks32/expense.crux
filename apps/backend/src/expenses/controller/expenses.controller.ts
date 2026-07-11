@@ -20,6 +20,7 @@ import { RequestId } from '../../common/decorators/request-id.decorator';
 import { ApiResponseSerializer } from '../../common/serializers/api-response.serializer';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { buildPagination } from '../../common/utils/pagination.util';
+import { serialize } from '../../common/utils/serialize.util';
 import { ExpensesService } from '../service/expenses.service';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
@@ -50,7 +51,7 @@ export class ExpensesController {
     @RequestId() requestId?: string,
   ): Promise<ApiResponseSerializer<ExpenseSerializer>> {
     const expense = await this.expensesService.create(user.userId, dto);
-    return ApiResponseSerializer.created(ExpenseSerializer.fromEntity(expense), { requestId });
+    return ApiResponseSerializer.created(serialize(ExpenseSerializer, expense), { requestId });
   }
 
   /**
@@ -72,7 +73,7 @@ export class ExpensesController {
     const { items, total } = await this.expensesService.findAll(user.userId, query);
     const { meta, links } = buildPagination(total, query, req);
     return ApiResponseSerializer.paginated(
-      items.map((expense) => ExpenseSerializer.fromEntity(expense)),
+      items.map((expense) => serialize(ExpenseSerializer, expense)),
       meta,
       links,
       { requestId },
@@ -95,7 +96,7 @@ export class ExpensesController {
     @RequestId() requestId?: string,
   ): Promise<ApiResponseSerializer<ExpenseSerializer>> {
     const expense = await this.expensesService.findOne(user.userId, id);
-    return ApiResponseSerializer.ok(ExpenseSerializer.fromEntity(expense), { requestId });
+    return ApiResponseSerializer.ok(serialize(ExpenseSerializer, expense), { requestId });
   }
 
   /**
@@ -116,7 +117,7 @@ export class ExpensesController {
     @RequestId() requestId?: string,
   ): Promise<ApiResponseSerializer<ExpenseSerializer>> {
     const expense = await this.expensesService.update(user.userId, id, dto);
-    return ApiResponseSerializer.ok(ExpenseSerializer.fromEntity(expense), { requestId });
+    return ApiResponseSerializer.ok(serialize(ExpenseSerializer, expense), { requestId });
   }
 
   /**

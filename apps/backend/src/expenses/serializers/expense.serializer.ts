@@ -1,15 +1,11 @@
 import { Expense as ExpenseContract } from '@mykks32/expense-crux-contracts';
-import { Expose, plainToInstance } from 'class-transformer';
-import { Expense } from '../entities/expense.entity';
+import { Expose, Transform } from 'class-transformer';
+import { resolveId } from '../../common/utils/serialize.util';
 
-/**
- * Public, wire-safe view of an {@link Expense} — never includes the
- * internal `userId` field. Satisfies the shared `Expense` contract so
- * mobile can rely on the same shape. `date` is serialized as an ISO 8601
- * string, matching the contract's wire format.
- */
+/** Public, wire-safe view of an {@link Expense} — never includes the internal `userId` field. Build via {@link serialize} (`common/utils/serialize.util.ts`), passing the Mongoose document straight through. */
 export class ExpenseSerializer implements ExpenseContract {
   @Expose()
+  @Transform(({ obj }) => resolveId(obj as { _id?: unknown; id?: unknown }))
   id: string;
 
   @Expose()
@@ -25,31 +21,9 @@ export class ExpenseSerializer implements ExpenseContract {
   category?: string;
 
   @Expose()
+  @Transform(({ value }) => (value as Date).toISOString())
   date: string;
 
   @Expose()
   notes?: string;
-
-  /**
-   * Builds an {@link ExpenseSerializer} from a Mongoose `Expense` document,
-   * dropping every field not explicitly `@Expose()`d.
-   *
-   * @param expense - The source expense document.
-   * @returns The public expense view.
-   */
-  static fromEntity(expense: Expense): ExpenseSerializer {
-    return plainToInstance(
-      ExpenseSerializer,
-      {
-        id: expense.id,
-        title: expense.title,
-        amount: expense.amount,
-        currency: expense.currency,
-        category: expense.category,
-        date: expense.date.toISOString(),
-        notes: expense.notes,
-      },
-      { excludeExtraneousValues: true },
-    );
-  }
 }

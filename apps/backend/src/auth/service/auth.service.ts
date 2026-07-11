@@ -11,6 +11,7 @@ import { AuthResponseSerializer, AuthTokens } from '../serializers/auth-response
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { jwtConfig } from '../../config/jwt.config';
 import { GlobalHttpException } from '../../common/exceptions/global-http.exception';
+import { serialize } from '../../common/utils/serialize.util';
 
 const SALT_ROUNDS = 10;
 
@@ -138,7 +139,7 @@ export class AuthService {
    */
   private async issueAuthResponse(user: User): Promise<AuthResponseSerializer> {
     const tokens = await this.generateTokens(user);
-    return AuthResponseSerializer.fromEntity(tokens, user);
+    return serialize(AuthResponseSerializer, { ...tokens, user });
   }
 
   /**
@@ -150,7 +151,9 @@ export class AuthService {
    * @returns The raw access and refresh token strings.
    */
   private async generateTokens(user: User): Promise<AuthTokens> {
-    const payload: JwtPayload = { sub: user.id, email: user.email };
+    // Mongoose's `Document.id` virtual is untyped (`any`) upstream; it's a hex string at runtime.
+    const userId = user.id as string;
+    const payload: JwtPayload = { sub: userId, email: user.email };
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
@@ -159,7 +162,7 @@ export class AuthService {
     });
 
     const refreshTokenHash = await bcrypt.hash(refreshToken, SALT_ROUNDS);
-    await this.userRepository.setRefreshTokenHash(user.id, refreshTokenHash);
+    await this.userRepository.setRefreshTokenHash(userId, refreshTokenHash);
 
     return { accessToken, refreshToken };
   }
