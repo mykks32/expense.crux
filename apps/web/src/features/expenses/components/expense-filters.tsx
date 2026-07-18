@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { DEFAULT_FILTERS, hasActiveFilters, type ExpenseFiltersState } from '@/features/expenses/filters';
+import { DEFAULT_FILTERS, hasActiveFilters, type ExpenseFiltersState } from '../utils/filters';
 
 const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
 

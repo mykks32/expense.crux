@@ -3,10 +3,10 @@ import { useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 
 import { Input } from '@/components/ui/input';
-import * as expensesApi from '@/features/expenses/api';
-import { ExpenseFiltersPanel } from '@/features/expenses/components/expense-filters';
-import { ExpensesTable } from '@/features/expenses/components/expenses-table';
-import { DEFAULT_FILTERS, toListExpensesQuery, type ExpenseFiltersState } from '@/features/expenses/filters';
+import * as expensesApi from '../api';
+import { ExpenseFiltersPanel } from '../components/expense-filters';
+import { ExpensesTable } from '../components/expenses-table';
+import { DEFAULT_FILTERS, toListExpensesQuery, type ExpenseFiltersState } from '../utils/filters';
 
 const DEFAULT_PAGE_LIMIT = 20;
 const SEARCH_DEBOUNCE_MS = 400;

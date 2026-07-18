@@ -6,10 +6,10 @@ export const expenseFormSchema = z.object({
     .string()
     .min(1, 'Amount is required')
     .refine((value) => !Number.isNaN(Number(value)) && Number(value) >= 0, 'Enter a valid amount'),
-  currency: z.string().optional(),
-  category: z.string().optional(),
-  date: z.string().optional(),
-  notes: z.string().optional(),
+  currency: z.string(),
+  category: z.string(),
+  date: z.string(),
+  notes: z.string(),
 });
 
 export type ExpenseFormValues = z.infer<typeof expenseFormSchema>;

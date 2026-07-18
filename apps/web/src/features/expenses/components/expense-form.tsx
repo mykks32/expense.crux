@@ -1,10 +1,9 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from '@tanstack/react-form';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { expenseFormSchema, type ExpenseFormValues } from '@/features/expenses/schema';
+import { expenseFormSchema, type ExpenseFormValues } from '../schema';
 
 interface ExpenseFormProps {
   defaultValues?: Partial<ExpenseFormValues>;
@@ -17,12 +16,7 @@ interface ExpenseFormProps {
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
 export function ExpenseForm({ defaultValues, submitLabel, isSubmitting, submitError, onSubmit }: ExpenseFormProps) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ExpenseFormValues>({
-    resolver: zodResolver(expenseFormSchema),
+  const form = useForm({
     defaultValues: {
       title: '',
       amount: '',
@@ -31,62 +25,146 @@ export function ExpenseForm({ defaultValues, submitLabel, isSubmitting, submitEr
       date: todayIso(),
       notes: '',
       ...defaultValues,
-    },
+    } satisfies ExpenseFormValues,
+    validators: { onChange: expenseFormSchema },
+    onSubmit: ({ value }) => onSubmit(value),
   });
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={(event) => void handleSubmit(onSubmit)(event)}>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="title">Title</Label>
-        <Input id="title" aria-invalid={!!errors.title} {...register('title')} />
-        {errors.title && <p className="text-destructive text-sm">{errors.title.message}</p>}
+    <form
+      className="flex flex-col gap-4"
+      onSubmit={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        void form.handleSubmit();
+      }}
+    >
+      <form.Field name="title">
+        {(field) => (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={field.name}>Title</Label>
+            <Input
+              id={field.name}
+              aria-invalid={!field.state.meta.isValid}
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+            />
+            {!field.state.meta.isValid && (
+              <p className="text-destructive text-sm">{field.state.meta.errors[0]?.message}</p>
+            )}
+          </div>
+        )}
+      </form.Field>
+
+      <div className="grid grid-cols-2 gap-4">
+        <form.Field name="amount">
+          {(field) => (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={field.name}>Amount</Label>
+              <Input
+                id={field.name}
+                inputMode="decimal"
+                aria-invalid={!field.state.meta.isValid}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {!field.state.meta.isValid && (
+                <p className="text-destructive text-sm">{field.state.meta.errors[0]?.message}</p>
+              )}
+            </div>
+          )}
+        </form.Field>
+
+        <form.Field name="currency">
+          {(field) => (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={field.name}>Currency</Label>
+              <Input
+                id={field.name}
+                className="uppercase"
+                aria-invalid={!field.state.meta.isValid}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {!field.state.meta.isValid && (
+                <p className="text-destructive text-sm">{field.state.meta.errors[0]?.message}</p>
+              )}
+            </div>
+          )}
+        </form.Field>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="amount">Amount</Label>
-          <Input id="amount" inputMode="decimal" aria-invalid={!!errors.amount} {...register('amount')} />
-          {errors.amount && <p className="text-destructive text-sm">{errors.amount.message}</p>}
-        </div>
+        <form.Field name="category">
+          {(field) => (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={field.name}>Category</Label>
+              <Input
+                id={field.name}
+                aria-invalid={!field.state.meta.isValid}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {!field.state.meta.isValid && (
+                <p className="text-destructive text-sm">{field.state.meta.errors[0]?.message}</p>
+              )}
+            </div>
+          )}
+        </form.Field>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="currency">Currency</Label>
-          <Input id="currency" className="uppercase" aria-invalid={!!errors.currency} {...register('currency')} />
-          {errors.currency && <p className="text-destructive text-sm">{errors.currency.message}</p>}
-        </div>
+        <form.Field name="date">
+          {(field) => (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={field.name}>Date</Label>
+              <Input
+                id={field.name}
+                type="date"
+                aria-invalid={!field.state.meta.isValid}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {!field.state.meta.isValid && (
+                <p className="text-destructive text-sm">{field.state.meta.errors[0]?.message}</p>
+              )}
+            </div>
+          )}
+        </form.Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="category">Category</Label>
-          <Input id="category" aria-invalid={!!errors.category} {...register('category')} />
-          {errors.category && <p className="text-destructive text-sm">{errors.category.message}</p>}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="date">Date</Label>
-          <Input id="date" type="date" aria-invalid={!!errors.date} {...register('date')} />
-          {errors.date && <p className="text-destructive text-sm">{errors.date.message}</p>}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="notes">Notes</Label>
-        <textarea
-          id="notes"
-          rows={3}
-          aria-invalid={!!errors.notes}
-          className="border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 aria-invalid:border-destructive w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
-          {...register('notes')}
-        />
-        {errors.notes && <p className="text-destructive text-sm">{errors.notes.message}</p>}
-      </div>
+      <form.Field name="notes">
+        {(field) => (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={field.name}>Notes</Label>
+            <textarea
+              id={field.name}
+              rows={3}
+              aria-invalid={!field.state.meta.isValid}
+              className="border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 aria-invalid:border-destructive w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
+              value={field.state.value}
+              onBlur={field.handleBlur}
+              onChange={(e) => field.handleChange(e.target.value)}
+            />
+            {!field.state.meta.isValid && (
+              <p className="text-destructive text-sm">{field.state.meta.errors[0]?.message}</p>
+            )}
+          </div>
+        )}
+      </form.Field>
 
       {submitError && <p className="text-destructive text-sm">{submitError}</p>}
 
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Saving…' : submitLabel}
-      </Button>
+      <form.Subscribe selector={(state) => state.canSubmit}>
+        {(canSubmit) => (
+          <Button type="submit" disabled={!canSubmit || isSubmitting}>
+            {isSubmitting ? 'Saving…' : submitLabel}
+          </Button>
+        )}
+      </form.Subscribe>
     </form>
   );
 }

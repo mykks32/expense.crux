@@ -6,9 +6,9 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { FullPageSpinner } from '@/components/shared/full-page-spinner';
 import { getApiErrorMessage } from '@/lib/api';
-import * as expensesApi from '@/features/expenses/api';
-import { ExpenseForm } from '@/features/expenses/components/expense-form';
-import type { ExpenseFormValues } from '@/features/expenses/schema';
+import * as expensesApi from '../api';
+import { ExpenseForm } from '../components/expense-form';
+import type { ExpenseFormValues } from '../schema';
 
 interface EditExpensePageProps {
   expenseId: string;

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { ExpensesListPage } from '@/features/expenses/pages/expenses-list-page';
+import { ExpensesListPage } from '@/features/expenses';
 
 export const Route = createFileRoute('/_authenticated/')({
   component: ExpensesListPage,

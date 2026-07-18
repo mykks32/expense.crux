@@ -3,9 +3,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { getApiErrorMessage } from '@/lib/api';
-import * as expensesApi from '@/features/expenses/api';
-import { ExpenseForm } from '@/features/expenses/components/expense-form';
-import type { ExpenseFormValues } from '@/features/expenses/schema';
+import * as expensesApi from '../api';
+import { ExpenseForm } from '../components/expense-form';
+import type { ExpenseFormValues } from '../schema';
 
 export function NewExpensePage() {
   const navigate = useNavigate();
