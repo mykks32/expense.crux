@@ -1,0 +1,199 @@
+# Core: Line Endings
+
+* text=auto eol=lf
+
+# Windows-specific files keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Source Code
+
+# JavaScript / TypeScript (NestJS)
+*.js text diff=javascript
+*.jsx text diff=javascript
+*.ts text diff=typescript
+*.tsx text diff=typescript
+*.mjs text
+*.cjs text
+
+# Rust
+*.rs text diff=rust
+
+# C / C++
+*.c text diff=c
+*.h text diff=c
+*.cpp text diff=cpp
+
+# Python
+*.py text diff=python
+
+# Go
+*.go text diff=golang
+
+# Java
+*.java text diff=java
+
+# Config & Data Formats
+
+# YAML (Ansible, K8s, GitHub Actions, Docker Compose)
+*.yaml linguist-detectable=true linguist-language=yaml text diff=yaml
+*.yml linguist-detectable=true linguist-language=yaml text diff=yaml
+
+# JSON
+*.json linguist-detectable=true linguist-language=json text
+
+# TOML
+*.toml linguist-detectable=true linguist-language=toml text
+
+# XML
+*.xml text diff=html
+
+# INI / ENV
+*.ini text
+*.cfg text
+*.env text linguist-language=shell
+*.env.* text linguist-language=shell
+*.env.example text linguist-language=shell
+
+# Infrastructure & DevOps
+
+# SQL
+*.sql linguist-detectable=true linguist-language=sql text
+
+# Shell / Bash
+*.sh linguist-detectable=true linguist-language=shell text eol=lf
+*.bash linguist-detectable=true linguist-language=shell text eol=lf
+*.zsh linguist-detectable=true linguist-language=shell text eol=lf
+
+# Dockerfile
+Dockerfile linguist-detectable=true linguist-language=dockerfile text
+Dockerfile.* linguist-detectable=true linguist-language=dockerfile text
+*.dockerfile linguist-detectable=true linguist-language=dockerfile text
+
+# Terraform / HCL
+*.tf linguist-detectable=true linguist-language=hcl text
+*.tfvars linguist-detectable=true linguist-language=hcl text
+*.hcl linguist-detectable=true linguist-language=hcl text
+
+# Helm
+helmfile.yaml linguist-detectable=true linguist-language=yaml text
+
+# Nginx
+*.conf linguist-detectable=true linguist-language=nginx text
+nginx.conf linguist-detectable=true linguist-language=nginx text
+
+# Makefile
+Makefile linguist-detectable=true linguist-language=makefile text
+makefile linguist-detectable=true linguist-language=makefile text
+*.mk linguist-detectable=true linguist-language=makefile text
+
+# Ansible Jinja2 templates
+*.j2 linguist-detectable=true linguist-language=jinja text
+
+# Prometheus rules
+*.rules linguist-detectable=true linguist-language=yaml text
+*.promql text
+
+# Documentation
+
+# *.md linguist-detectable=true linguist-language=markdown text
+# *.mdx text
+# *.rst text
+# *.txt text
+
+# Web Assets
+
+*.html text diff=html
+*.css text diff=css
+*.scss text diff=css
+*.sass text
+*.less text
+
+# Binary Files
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.bmp binary
+*.tiff binary
+*.svg text
+
+# Fonts
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.tgz binary
+*.bz2 binary
+*.7z binary
+*.rar binary
+
+# Compiled / JVM
+*.class binary
+*.jar binary
+*.war binary
+*.ear binary
+
+# Rust compiled
+*.rlib binary
+
+# GitHub Linguist: Language Stats
+
+# Exclude vendored dependencies from stats
+node_modules/* linguist-vendored
+vendor/* linguist-vendored
+third_party/* linguist-vendored
+
+# Exclude generated/build output from stats
+dist/* linguist-generated
+build/* linguist-generated
+out/* linguist-generated
+target/* linguist-generated
+.next/* linguist-generated
+coverage/* linguist-generated
+
+# Lock files are auto-generated, exclude from stats
+package-lock.json linguist-generated
+yarn.lock linguist-generated
+pnpm-lock.yaml linguist-generated
+Cargo.lock linguist-generated
+poetry.lock linguist-generated
+composer.lock linguist-generated
+
+# Docs folder excluded from code stats, but keep README visible
+docs/* linguist-documentation
+*.md linguist-documentation=false
+README.md linguist-documentation=false
+CHANGELOG.md linguist-documentation=false
+
+# Diff Improvements (shows function names in diffs)
+
+*.js diff=javascript
+*.ts diff=typescript
+*.py diff=python
+*.rs diff=rust
+*.go diff=golang
+*.java diff=java
+*.c diff=c
+*.cpp diff=cpp
+*.html diff=html
+*.css diff=css
+*.yaml diff=yaml
+*.sql diff=sql
+
+# Merge Strategy (always keep ours for lock files on conflict)
+
+package-lock.json merge=ours
+yarn.lock merge=ours
+pnpm-lock.yaml merge=ours
