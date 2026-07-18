@@ -1,7 +1,7 @@
 {
   "name": "expense.crux",
   "version": "0.1.0",
-  "description": "Expense tracking monorepo (backend API + mobile app)",
+  "description": "Expense tracking monorepo (server API + web app + mobile app)",
   "private": true,
   "packageManager": "pnpm@9.0.0",
   "keywords": [
@@ -17,8 +17,9 @@
   "author": "mykks32",
   "scripts": {
     "build": "pnpm -r run build",
-    "start:backend": "pnpm --filter @expense.crux/backend run start",
+    "start:server": "pnpm --filter @expense.crux/server run start",
     "start:mobile": "pnpm --filter @expense.crux/mobile run start -c",
+    "start:web": "pnpm --filter @expense.crux/web run dev",
     "test": "pnpm -r run test"
   },
   "devDependencies": {

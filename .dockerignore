@@ -7,7 +7,7 @@
 .env
 *.log
 
-# Not needed for the backend image
+# Not needed for the server/web images
 apps/mobile
 docker
 env
