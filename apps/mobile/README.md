@@ -15,8 +15,10 @@ From the repo root:
 2. Point the app at the backend
 
    ```bash
-   cp apps/mobile/.env.example apps/mobile/.env   # then edit EXPO_PUBLIC_API_URL — see comments in the file
+   cp env/mobile.env.example apps/mobile/.env   # then edit EXPO_PUBLIC_API_URL — see comments in the file
    ```
+
+   The canonical template lives in the shared `env/` directory (see root `README.md`), but Expo's own env loading only ever reads from the project root — there's no supported way to point it at `env/` directly, so the working copy still has to be `apps/mobile/.env`.
 
 3. Start the app
 
