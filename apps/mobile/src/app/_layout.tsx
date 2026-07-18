@@ -8,14 +8,14 @@ import 'react-native-reanimated';
 
 import '../global.css';
 
-import { navigationThemes } from '@/constants/theme';
-import { PaperProvider } from '@/context/paper-provider';
-import { QueryProvider } from '@/context/query-provider';
-import { ThemeProvider } from '@/context/theme-provider';
+import { navigationThemes } from '@/features/theme/theme';
+import { PaperProvider } from '@/features/theme/components/paper-provider';
+import { ThemeProvider } from '@/features/theme/components/theme-provider';
+import { QueryProvider } from '@/lib/query-provider';
 import useAuthInitialization from '@/features/auth/hooks/use-auth-initialization';
 import useAuthStore from '@/features/auth/store';
 import useThemeStore from '@/features/theme/store';
-import { ToastHost } from '@/components/toast-host';
+import { ToastHost } from '@/features/toast/components/toast-host';
 
 SplashScreen.preventAutoHideAsync().catch((err) => {
   console.error('Failed to prevent splash screen auto-hide:', err);

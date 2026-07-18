@@ -12,8 +12,8 @@ post {
 
 body:json {
   {
-    "email": "test@example.com",
-    "password": "Password123!"
+    "email": "srikri5462ydv@gmail.com",
+    "password": "Password@123"
   }
 }
 
@@ -26,18 +26,18 @@ script:post-response {
 
 docs {
   ## Login
-
+  
   `POST /auth/login` — authenticates by email/password and issues a fresh token pair. Public (no auth).
-
+  
   ### Body
   | Field | Type | Required |
   |---|---|---|
   | `email` | string | yes |
   | `password` | string | yes |
-
+  
   ### Response
   `200 OK` — `data`: `{ accessToken, refreshToken, user: { id, email, name? } }`.
-
+  
   ### Errors
   `invalidCredentials` on a bad email/password.
 }

@@ -1,6 +1,6 @@
 import { Portal, Snackbar } from 'react-native-paper';
 
-import useToastStore from '@/features/toast/store';
+import useToastStore from '../store';
 
 const DURATION_MS = 3000;
 
