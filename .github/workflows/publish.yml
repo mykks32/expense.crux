@@ -1,6 +1,7 @@
-# Publishes the two release artifacts for expense.crux:
+# Publishes the release artifacts for expense.crux:
 #   1. @mykks32/expense-crux-contracts -> GitHub Packages (npm registry)
-#   2. apps/backend Docker image        -> GitHub Container Registry (ghcr.io)
+#   2. apps/server Docker image         -> GitHub Container Registry (ghcr.io)
+#   3. apps/web Docker image            -> GitHub Container Registry (ghcr.io)
 #
 # Trigger: push a version tag, e.g.
 #   git tag v0.1.1 && git push origin v0.1.1
@@ -14,8 +15,8 @@
 #   - first run only: link/set visibility on the published packages under
 #     the repo's Packages tab
 #
-# The two jobs are independent and run in parallel: the Docker build
-# compiles packages/contracts from source itself, so it never needs the
+# The three jobs are independent and run in parallel: each Docker build
+# compiles packages/contracts from source itself, so neither ever needs the
 # npm package to have been published first.
 name: Publish
 
@@ -60,9 +61,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Builds apps/backend/Dockerfile's production stage and pushes it to
+  # Builds docker/server.Dockerfile's production stage and pushes it to
   # ghcr.io, tagged with both the semver version and `latest`.
-  publish-docker-image:
+  publish-server-docker-image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -83,12 +84,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # Derives the image tags from the triggering ref, e.g. pushing tag
-      # v0.1.1 produces both `ghcr.io/.../expense-crux-backend:0.1.1` and
+      # v0.1.1 produces both `ghcr.io/.../expense-crux-server:0.1.1` and
       # `:latest`.
       - uses: docker/metadata-action@v5
         id: meta
         with:
-          images: ghcr.io/${{ github.repository_owner }}/expense-crux-backend
+          images: ghcr.io/${{ github.repository_owner }}/expense-crux-server
           tags: |
             type=semver,pattern={{version}}
             type=raw,value=latest
@@ -98,8 +99,51 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
-          file: apps/backend/Dockerfile
+          file: docker/server.Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  # Builds apps/web (TanStack Start) via docker/web.Dockerfile and pushes it to
+  # ghcr.io, tagged with both the semver version and `latest`. VITE_API_URL is
+  # inlined into the client bundle at build time (Vite's import.meta.env, not a
+  # runtime env read) — set the repo variable VITE_API_URL (Settings -> Actions ->
+  # Variables) to whatever URL browsers should reach the server at; defaults to
+  # http://localhost:3000 if unset, which only works for `docker compose up` on
+  # the same machine as the browser.
+  publish-web-docker-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/expense-crux-web
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/web.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_API_URL=${{ vars.VITE_API_URL || 'http://localhost:3000' }}

@@ -6,26 +6,52 @@ networks:
 
 services:
 
-  # Backend API
-  backend:
+  # Server API
+  server:
     # Run locally (build from source):
-    # cp ../env/backend.env.example ../env/backend.env (MONGO_URI host "mongo"), then `docker compose up --build`.
+    # cp ../env/server.env.example ../env/server.env (MONGO_URI host "mongo"), then `docker compose up --build`.
 #    build:
 #      context: ..
-#      dockerfile: apps/backend/Dockerfile
+#      dockerfile: docker/server.Dockerfile
     # Run the published image instead: comment out `build:` above, uncomment `image:` below.
     # `docker login ghcr.io` first if private, then `docker compose up`.
-    image: ghcr.io/mykks32/expense-crux-backend:latest
-    container_name: expense-crux-backend
+    image: ghcr.io/mykks32/expense-crux-server:latest
+    container_name: expense-crux-server
     networks:
       - expense-crux-net
     ports:
       - "3000:3000"
     env_file:
-      - ../env/backend.env
+      - ../env/server.env
     depends_on:
       mongo:
         condition: service_healthy
+    restart: unless-stopped
+
+  # Web app
+  web:
+    # Run locally (build from source):
+    # cp ../env/web.env.example ../env/web.env, then `docker compose up --build`.
+    # VITE_API_URL is baked into the client bundle at build time (Vite's
+    # import.meta.env, not a runtime env read like the server) — it must be
+    # reachable from the *browser*, not the compose network, so this stays
+    # "localhost:3000" (server's host-mapped port above) rather than the
+    # internal service name "server".
+#    build:
+#      context: ..
+#      dockerfile: docker/web.Dockerfile
+#      args:
+#        VITE_API_URL: http://localhost:3000
+    # Run the published image instead: comment out `build:` above, uncomment `image:` below.
+    # `docker login ghcr.io` first if private, then `docker compose up`.
+    image: ghcr.io/mykks32/expense-crux-web:latest
+    container_name: expense-crux-web
+    networks:
+      - expense-crux-net
+    ports:
+      - "3001:3001"
+    depends_on:
+      - server
     restart: unless-stopped
 
   # MongoDB
