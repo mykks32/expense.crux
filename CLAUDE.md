@@ -1,20 +1,21 @@
 # expense.crux
 
-Expense tracking monorepo: a NestJS + MongoDB backend, a mobile app (not yet implemented), and a shared TypeScript contracts package published to GitHub Packages so both apps consume the same wire types.
+Expense tracking monorepo: a NestJS + MongoDB server, a TanStack Start web app, a mobile app, and a shared TypeScript contracts package published to GitHub Packages so all three apps consume the same wire types.
 
 ## Layout
 
 ```
-apps/backend/     NestJS API (source of truth for behavior)
-apps/mobile/       placeholder — no implementation yet
+apps/server/       NestJS API (source of truth for behavior)
+apps/web/           TanStack Start (Vite + SSR) web app, feature-based — see apps/web/README.md
+apps/mobile/        Expo (React Native) mobile app, feature-based
 packages/contracts/  @mykks32/expense-crux-contracts — shared interfaces (User, Expense, ApiResponse<T>, auth payloads)
-docker/            docker-compose.yml (backend + mongo)
-.github/workflows/ publish.yml — publishes contracts to GH Packages + backend image to GHCR on version tags
+docker/            docker-compose.yml (server + web + mongo), server.Dockerfile, web.Dockerfile
+.github/workflows/ publish.yml — publishes contracts to GH Packages + server/web images to GHCR on version tags
 ```
 
 pnpm workspaces via `pnpm-workspace.yaml` (the source of truth pnpm reads — **not** a `workspaces` field in root `package.json`, which pnpm ignores).
 
-## Backend architecture (apps/backend/src)
+## Server architecture (apps/server/src)
 
 Each feature module (`auth/`, `expenses/`) is split into:
 
@@ -52,7 +53,7 @@ Build responses via the static factories — never the constructor: `ApiResponse
 
 ## API versioning
 
-Every route is URI-versioned — `app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' })` in `main.ts` — so all endpoints live under `/v1/...` (e.g. `/v1/auth/login`, `/v1/expenses`) with no per-controller changes needed. Mobile's `apiClient` (`apps/mobile/src/lib/api.ts`) appends `/v1` to `EXPO_PUBLIC_API_URL` once at the `baseURL` level. A future breaking change ships as `/v2/...` (via `@Version('2')` on the affected controller/handler) without breaking mobile installs still on `/v1`.
+Every route is URI-versioned — `app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' })` in `main.ts` — so all endpoints live under `/v1/...` (e.g. `/v1/auth/login`, `/v1/expenses`) with no per-controller changes needed. Both clients append `/v1` once at the `baseURL` level — mobile's `apiClient` (`apps/mobile/src/lib/api.ts`) off `EXPO_PUBLIC_API_URL`, web's `apiClient` (`apps/web/src/lib/api.ts`) off `VITE_API_URL`. A future breaking change ships as `/v2/...` (via `@Version('2')` on the affected controller/handler) without breaking installs still on `/v1`.
 
 ## Error handling
 
@@ -71,14 +72,14 @@ Refresh tokens are never stored raw — only a bcrypt hash (`User.refreshTokenHa
 
 ## Shared contracts package
 
-`packages/contracts` (`@mykks32/expense-crux-contracts`) holds pure interfaces only — no runtime code, no classes with behavior. Backend DTOs/serializers `implement` these interfaces. It's a real pnpm workspace dependency (`workspace:*`) in both `apps/backend` and `apps/mobile`, meant to be published to GitHub Packages so it stays in sync between backend and mobile without copy-pasting types.
+`packages/contracts` (`@mykks32/expense-crux-contracts`) holds pure interfaces only — no runtime code, no classes with behavior. Server DTOs/serializers `implement` these interfaces. It's a real pnpm workspace dependency (`workspace:*`) in `apps/server`, `apps/web`, and `apps/mobile`, meant to be published to GitHub Packages so all three stay in sync without copy-pasting types.
 
-**Gotcha:** the Docker build must build `packages/contracts` (via `pnpm --filter @mykks32/expense-crux-contracts run build`) *before* building the backend — `tsc` needs its `dist/*.d.ts` to resolve the import. Also: `.dockerignore` must **not** exclude `packages/` — it did at one point (leftover from before contracts existed) and broke the build.
+**Gotcha:** the Docker build must build `packages/contracts` (via `pnpm --filter @mykks32/expense-crux-contracts run build`) *before* building the server or web app — `tsc`/Vite need its `dist/*.d.ts` to resolve the import. Also: `.dockerignore` must **not** exclude `packages/` — it did at one point (leftover from before contracts existed) and broke the build.
 
 ## Running it
 
 ```bash
-cd docker && docker compose up --build   # backend :3000, mongo :27017
+cd docker && docker compose up --build   # server :3000, web :3001, mongo :27017
 ```
 
 See root `README.md` for the local (non-Docker) dev flow and the release process (`.github/workflows/publish.yml`, triggered by pushing a `v*.*.*` tag).
@@ -88,5 +89,5 @@ See root `README.md` for the local (non-Docker) dev flow and the release process
 - No `any`, anywhere. If TS/reflect-metadata forces an implicit `any` (e.g. Express augmentation edge cases), fix the typing rather than casting to `any`.
 - Every function/method gets a JSDoc block, but keep it terse — a one-line summary is enough for simple/obvious functions; reserve multi-line `@param`/`@returns`/`@throws` detail for genuinely non-obvious behavior. Still an explicit, repeated ask; just don't let it bloat simple code.
 - Docker/env var naming: `JWT_ACCESS_SECRET`, `ACCESS_TOKEN_TTL`, `JWT_REFRESH_SECRET`, `REFRESH_TOKEN_TTL` — fully symmetric naming was requested explicitly; don't drift back to asymmetric names like `JWT_SECRET`/`JWT_EXPIRES_IN`.
-- When adding a new HTTP-facing type, add the shared interface to `packages/contracts` first, then `implement` it from the backend DTO/serializer.
+- When adding a new HTTP-facing type, add the shared interface to `packages/contracts` first, then `implement` it from the server DTO/serializer.
 - Git commits: never add a `Co-Authored-By` trailer (Claude or otherwise). This overrides the default git-commit instructions.
