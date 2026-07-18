@@ -36,20 +36,34 @@ services:
     # import.meta.env, not a runtime env read like the server) — it must be
     # reachable from the *browser*, not the compose network, so this stays
     # "localhost:3000" (server's host-mapped port above) rather than the
-    # internal service name "server".
+    # internal service name "server". SSR calls made from inside this
+    # container itself use `environment.INTERNAL_API_URL` below instead —
+    # see apps/web/src/lib/api.ts.
 #    build:
 #      context: ..
 #      dockerfile: docker/web.Dockerfile
 #      args:
 #        VITE_API_URL: http://localhost:3000
-    # Run the published image instead: comment out `build:` above, uncomment `image:` below.
-    # `docker login ghcr.io` first if private, then `docker compose up`.
+    # Run the published image instead (this is the active mode below): comment
+    # out `build:` above, uncomment `image:` below. `docker login ghcr.io`
+    # first if private, then `docker compose up`.
+    # env/web.env is NOT read in this mode — VITE_API_URL was already baked
+    # into this image at publish time (see .github/workflows/publish.yml's
+    # VITE_API_URL repo variable). Only env/server.env matters here.
     image: ghcr.io/mykks32/expense-crux-web:latest
     container_name: expense-crux-web
     networks:
       - expense-crux-net
     ports:
       - "3001:3001"
+    environment:
+      # Read at container runtime (process.env), not baked into the build like
+      # VITE_API_URL above — used only for calls made from inside this
+      # container itself (SSR), never by the browser. Must be the compose
+      # service name, not "localhost": from inside the web container,
+      # "localhost" is this container, not the separate server container, even
+      # though they share the expense-crux-net network.
+      INTERNAL_API_URL: http://server:3000
     depends_on:
       - server
     restart: unless-stopped
