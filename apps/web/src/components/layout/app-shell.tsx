@@ -3,8 +3,8 @@ import { Link } from '@tanstack/react-router';
 import { LogOutIcon, PlusIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/features/theme/components/theme-toggle';
-import useAuthStore from '@/features/auth/store';
+import { ThemeToggle } from '@/features/theme';
+import { useAuthStore } from '@/features/auth';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const logout = useAuthStore((state) => state.logout);

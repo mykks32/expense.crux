@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import useAuthStore from '../store';
+import useAuthStore from '../context';
 
 /** Kicks off session restoration exactly once; call from the auth-gated layout routes. */
 function useAuthInitialization(): void {
