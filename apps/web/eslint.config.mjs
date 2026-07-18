@@ -34,4 +34,23 @@ export default tseslint.config(
       'react-refresh/only-export-components': 'off',
     },
   },
+  {
+    // Each feature's index.ts is its public API; reach a feature's internals (api/,
+    // components/, context/, hooks/, etc.) only via relative imports from within that
+    // same feature, never through the `@/features/x/y` alias from outside it.
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/features/*/**'],
+              message: "Import from the feature's public entry point (e.g. \"@/features/auth\") instead of reaching into its internals.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );
