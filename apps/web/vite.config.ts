@@ -22,5 +22,10 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  // contracts builds to CJS and Vite doesn't pre-bundle linked monorepo packages by
+  // default, so named imports from it fail in dev without this.
+  optimizeDeps: {
+    include: ['@mykks32/expense-crux-contracts'],
+  },
   plugins: [tailwindcss(), tanstackStart(), viteReact()],
 });
