@@ -106,15 +106,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   # Builds apps/web (TanStack Start) via docker/web.Dockerfile and pushes it to
-  # ghcr.io, tagged with both the semver version and `latest`. VITE_API_URL is
-  # inlined into the client bundle at build time (Vite's import.meta.env, not a
-  # runtime env read) via env/web.env — generated below from the repo variable
-  # of the same name (Settings -> Actions -> Variables), same mechanism
-  # apps/web/vite.config.ts already uses for local dev. Set it to whatever URL
-  # *browsers* should reach the server at; defaults to http://localhost:3000 if
-  # unset, which only works for `docker compose up` on the same machine as the
-  # browser — never set this to the compose service name ("server"), browsers
-  # can't resolve that.
+  # ghcr.io, tagged with both the semver version and `latest`. VITE_API_URL
+  # (repo variable, Settings -> Actions -> Variables) must be a URL the
+  # *browser* can reach, e.g. http://localhost:3000 — never the compose
+  # service name "server".
   publish-web-docker-image:
     runs-on: ubuntu-latest
     permissions:
@@ -124,10 +119,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Generate env/web.env for the build
-        run: |
-          echo "VITE_API_URL=${{ vars.VITE_API_URL || 'http://server:3000' }}" > env/web.env
-          echo "Generated env/web.env:"
-          cat env/web.env
+        run: echo "VITE_API_URL=${{ vars.VITE_API_URL || 'http://localhost:3000' }}" > env/web.env
 
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3

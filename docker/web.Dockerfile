@@ -58,18 +58,13 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-# Unlike apps/backend, this doesn't reinstall with --prod only: the production
-# command is `vite preview` (TanStack Start's build emits a portable {fetch}
-# handler, not a self-listening Node server — see apps/web/README.md), and `vite
-# preview` needs vite.config.ts's plugins (vite, @vitejs/plugin-react,
-# @tailwindcss/vite, the tanstackStart plugin) resolvable at runtime, not just
-# build time. So the full node_modules from the build stage is carried forward.
+# Unlike apps/backend, this carries the full node_modules forward (not a
+# --prod reinstall): the production command is `vite preview`, which needs
+# vite.config.ts's plugins resolvable at runtime, not just build time.
 COPY --chown=node:node --from=build /app/node_modules ./node_modules
 COPY --chown=node:node --from=build /app/apps/web/node_modules ./apps/web/node_modules
 
-# apps/web/node_modules/@mykks32/expense-crux-contracts is a symlink to
-# ../../../../packages/contracts (pnpm's workspace:* link) — its target must
-# exist in this image too, or the symlink dangles.
+# The contracts workspace:* symlink under node_modules needs its target too
 COPY --chown=node:node --from=build /app/packages/contracts/dist ./packages/contracts/dist
 COPY --chown=node:node --from=build /app/packages/contracts/package.json ./packages/contracts/package.json
 
