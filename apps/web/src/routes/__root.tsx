@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
+import { NotFoundPage } from '@/components/shared/not-found-page';
 import { Toaster } from '@/components/ui/sonner';
 import { QueryProvider } from '@/lib/query-provider';
 import appCss from '@/styles/app.css?url';
@@ -15,6 +17,7 @@ export const Route = createRootRoute({
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
   component: RootComponent,
+  notFoundComponent: NotFoundPage,
 });
 
 function RootComponent() {
@@ -23,6 +26,7 @@ function RootComponent() {
       <QueryProvider>
         <Outlet />
         <Toaster position="top-center" />
+        {import.meta.env.VITE_ENABLE_DEVTOOLS === 'true' && <TanStackRouterDevtools position="bottom-right" />}
       </QueryProvider>
     </RootDocument>
   );
