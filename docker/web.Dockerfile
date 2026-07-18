@@ -68,8 +68,11 @@ COPY --chown=node:node --from=build /app/apps/web/node_modules ./apps/web/node_m
 COPY --chown=node:node --from=build /app/packages/contracts/dist ./packages/contracts/dist
 COPY --chown=node:node --from=build /app/packages/contracts/package.json ./packages/contracts/package.json
 
-# Copy built output + the config files `vite preview` reads at startup
+# Copy built output + the config/source files `vite preview` reads at startup
+# (the tanstackStart plugin resolves the router entry/route tree from src/,
+# even when only serving prebuilt dist/ output)
 COPY --chown=node:node --from=build /app/apps/web/dist ./apps/web/dist
+COPY --chown=node:node --from=build /app/apps/web/src ./apps/web/src
 COPY --chown=node:node --from=build /app/apps/web/package.json ./apps/web/package.json
 COPY --chown=node:node --from=build /app/apps/web/vite.config.ts ./apps/web/vite.config.ts
 COPY --chown=node:node --from=build /app/apps/web/tsconfig.json ./apps/web/tsconfig.json
@@ -80,6 +83,9 @@ WORKDIR /app/apps/web
 USER node
 
 EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3001/', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"
 
 # Start the application
 CMD ["node_modules/.bin/vite", "preview"]

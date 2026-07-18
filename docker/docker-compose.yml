@@ -40,6 +40,7 @@ services:
     # first if private, then `docker compose up`.
     image: ghcr.io/mykks32/expense-crux-web:latest
     container_name: expense-crux-web
+    init: true
     networks:
       - expense-crux-net
     ports:
