@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    // Standalone, not extending root tsconfig.base.json — that one is CommonJS/Node-oriented for the backend; this is a Vite/bundler target.
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    // arr[i]/obj[key] is typed `T | undefined` instead of `T` — e.g. `items[0].name` now needs a null check first.
+    "noUncheckedIndexedAccess": true,
+    // subclass methods overriding a base method need `override`.
+    "noImplicitOverride": true,
+    // catches a missing `break` in a switch falling through to the next case.
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": false,
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"]
+}

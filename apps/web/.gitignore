@@ -1,0 +1,14 @@
+# dependencies
+node_modules/
+
+# TanStack Start / Vite build output — vite build emits dist/client + dist/server/server.js
+dist/
+
+# TanStack Router codegen — regenerated on dev/build
+src/routeTree.gen.ts
+
+# typescript
+*.tsbuildinfo
+
+# macOS
+.DS_Store
