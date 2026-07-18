@@ -1,8 +1,8 @@
 {
-  "name": "@expense.crux/backend",
+  "name": "@expense.crux/server",
   "version": "0.1.0",
   "private": true,
-  "description": "Backend API for expense.crux",
+  "description": "Server API for expense.crux",
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc",

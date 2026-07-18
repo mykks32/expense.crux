@@ -14,10 +14,10 @@ import { ExpensesModule } from './expenses/expenses.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      // Local (non-Docker) dev reads env/backend.env from the repo root.
+      // Local (non-Docker) dev reads env/server.env from the repo root.
       // In Docker/compose, env vars are injected directly into process.env
       // (via env_file/-e), so a missing file here is expected and harmless.
-      envFilePath: '../../env/backend.env',
+      envFilePath: '../../env/server.env',
       validate: validateEnv,
       load: [appConfig, mongoConfig, jwtConfig],
     }),
