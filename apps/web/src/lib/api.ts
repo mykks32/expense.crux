@@ -3,17 +3,7 @@ import type { ApiResponse } from '@mykks32/expense-crux-contracts';
 
 import { getCookie, removeCookie, setCookie } from './cookies';
 
-// VITE_API_URL is baked into the client bundle at build time and is what the
-// *browser* uses — it must be a host-mapped address like "localhost:3000".
-// import.meta.env.SSR is true only in the server bundle (statically replaced,
-// so this branch is dead-code-eliminated from the client bundle entirely —
-// `process` isn't defined in the browser). On the server, prefer
-// INTERNAL_API_URL, a plain runtime env var (not build-time inlined, so it can
-// be set per-container without a rebuild) pointing at the Docker Compose
-// service name instead, e.g. "http://server:3000" — inside the web container,
-// "localhost" refers to that container itself, not the separate server
-// container, even though they're on the same compose network.
-const apiHost = import.meta.env.SSR ? (process.env.INTERNAL_API_URL ?? import.meta.env.VITE_API_URL) : import.meta.env.VITE_API_URL;
+const apiHost = import.meta.env.VITE_API_URL;
 
 if (!apiHost) {
   throw new Error('VITE_API_URL is not set — copy env/web.env.example to env/web.env and set it to your backend URL.');

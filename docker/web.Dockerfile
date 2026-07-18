@@ -43,13 +43,6 @@ WORKDIR /app
 # Reuse installed dependencies and source from the development stage (faster build)
 COPY --chown=node:node --from=development /app ./
 
-# VITE_API_URL is inlined into the client bundle at build time (Vite's import.meta.env,
-# not a runtime process.env read like the backend's config) — bake it in via a build
-# arg rather than env/web.env, so a CI-published image doesn't need that file at all.
-# Changing it later means rebuilding the image, not just restarting the container.
-ARG VITE_API_URL=http://localhost:3000
-ENV VITE_API_URL=$VITE_API_URL
-
 # Build the shared contracts package first, then the web app (Vite SSR build)
 RUN pnpm --filter @mykks32/expense-crux-contracts run build
 RUN pnpm --filter @expense.crux/web run build

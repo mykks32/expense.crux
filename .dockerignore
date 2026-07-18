@@ -12,3 +12,12 @@ apps/mobile
 docker
 env
 scripts
+
+# Exception: apps/web's build needs env/web.env present in the build context
+# (vite.config.ts loads it via dotenv, same mechanism as local dev — see
+# docker/web.Dockerfile and .github/workflows/publish.yml's "Generate
+# env/web.env" step). Nothing else under env/ is re-included — in particular
+# env/server.env (real secrets) stays excluded from every image's build
+# context, even though the server doesn't do a generic COPY . . that would've
+# picked it up anyway.
+!env/web.env

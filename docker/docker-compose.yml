@@ -10,12 +10,12 @@ services:
   server:
     # Run locally (build from source):
     # cp ../env/server.env.example ../env/server.env (MONGO_URI host "mongo"), then `docker compose up --build`.
-#    build:
-#      context: ..
-#      dockerfile: docker/server.Dockerfile
+    build:
+      context: ..
+      dockerfile: docker/server.Dockerfile
     # Run the published image instead: comment out `build:` above, uncomment `image:` below.
     # `docker login ghcr.io` first if private, then `docker compose up`.
-    image: ghcr.io/mykks32/expense-crux-server:latest
+#    image: ghcr.io/mykks32/expense-crux-server:latest
     container_name: expense-crux-server
     networks:
       - expense-crux-net
@@ -36,14 +36,14 @@ services:
     # import.meta.env, not a runtime env read like the server) — it must be
     # reachable from the *browser*, not the compose network, so this stays
     # "localhost:3000" (server's host-mapped port above) rather than the
-    # internal service name "server". SSR calls made from inside this
-    # container itself use `environment.INTERNAL_API_URL` below instead —
-    # see apps/web/src/lib/api.ts.
-#    build:
-#      context: ..
-#      dockerfile: docker/web.Dockerfile
-#      args:
-#        VITE_API_URL: http://localhost:3000
+    # internal service name "server". No server-side equivalent is needed: the
+    # auth guard renders only a spinner during SSR (initialize() runs in a
+    # useEffect, which never fires server-side), so no route that calls the
+    # API is ever reached before hydration — the web container itself never
+    # makes an API call.
+    build:
+      context: ..
+      dockerfile: docker/web.Dockerfile
     # Run the published image instead (this is the active mode below): comment
     # out `build:` above, uncomment `image:` below. `docker login ghcr.io`
     # first if private, then `docker compose up`.
@@ -56,14 +56,6 @@ services:
       - expense-crux-net
     ports:
       - "3001:3001"
-    environment:
-      # Read at container runtime (process.env), not baked into the build like
-      # VITE_API_URL above — used only for calls made from inside this
-      # container itself (SSR), never by the browser. Must be the compose
-      # service name, not "localhost": from inside the web container,
-      # "localhost" is this container, not the separate server container, even
-      # though they share the expense-crux-net network.
-      INTERNAL_API_URL: http://server:3000
     depends_on:
       - server
     restart: unless-stopped
