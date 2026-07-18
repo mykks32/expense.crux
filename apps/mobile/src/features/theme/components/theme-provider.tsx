@@ -1,7 +1,7 @@
 import { type PropsWithChildren, useEffect } from 'react';
 import { colorScheme } from 'nativewind';
 
-import useThemeStore from '@/features/theme/store';
+import useThemeStore from '../store';
 
 /** Syncs the theme store to NativeWind's colorScheme (drives `dark:` classNames app-wide). */
 export function ThemeProvider({ children }: PropsWithChildren) {
