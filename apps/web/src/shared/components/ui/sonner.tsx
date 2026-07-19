@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
-import { useThemeStore } from '@/features/theme';
+import { useThemeStore } from '@/modules/theme';
 
 function Toaster({ ...props }: ToasterProps) {
   const theme = useThemeStore((state) => state.theme);
