@@ -1,6 +1,6 @@
 import { MoonIcon, SunIcon } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/shared/components/ui/button';
 import useThemeStore from '../context';
 
 export function ThemeToggle() {
