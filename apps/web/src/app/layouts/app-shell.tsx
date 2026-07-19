@@ -2,9 +2,9 @@ import type { ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import { LogOutIcon, PlusIcon } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/features/theme';
-import { useAuthStore } from '@/features/auth';
+import { Button } from '@/shared/components/ui/button';
+import { ThemeToggle } from '@/modules/theme';
+import { useAuthStore } from '@/modules/auth';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const logout = useAuthStore((state) => state.logout);

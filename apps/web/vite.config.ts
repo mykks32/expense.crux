@@ -27,5 +27,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['@mykks32/expense-crux-contracts'],
   },
-  plugins: [tailwindcss(), tanstackStart(), viteReact()],
+  // Router entry moved to src/app/router.tsx (out of src/ root) — the plugin's
+  // `router.entry` defaults to `src/router.tsx` and must be pointed at the new path.
+  plugins: [tailwindcss(), tanstackStart({ router: { entry: 'app/router.tsx' } }), viteReact()],
 });
