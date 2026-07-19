@@ -3,10 +3,12 @@ import { useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
-import { FullPageSpinner } from '@/components/shared/full-page-spinner';
-import { getApiErrorMessage } from '@/lib/api';
+import { Button } from '@/shared/components/ui/button';
+import { ConfirmDialog, FullPageSpinner } from '@/shared/components/common';
+import { useConfirmDialog } from '@/shared/hooks';
+import { getApiErrorMessage } from '@/shared/lib/api';
 import * as expensesApi from '../api';
+import { expenseKeys } from '../api/query-keys';
 import { ExpenseForm } from '../components/expense-form';
 import type { ExpenseFormValues } from '../schema';
 
@@ -18,9 +20,10 @@ export function EditExpensePage({ expenseId }: EditExpensePageProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { isOpen, options: confirmOptions, confirm, handleConfirm, handleCancel } = useConfirmDialog();
 
   const { data: expense, isLoading } = useQuery({
-    queryKey: ['expenses', expenseId],
+    queryKey: expenseKeys.detail(expenseId),
     queryFn: () => expensesApi.getExpense(expenseId),
   });
 
@@ -35,20 +38,24 @@ export function EditExpensePage({ expenseId }: EditExpensePageProps) {
         notes: values.notes || undefined,
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      await queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       await navigate({ to: '/' });
       toast.success('Changes saved');
     },
   });
 
-  const handleDelete = async () => {
-    if (!window.confirm('Delete this expense? This cannot be undone.')) {
+  const handleDeleteClick = async () => {
+    const confirmed = await confirm({
+      title: 'Delete this expense?',
+      description: 'This cannot be undone.',
+    });
+    if (!confirmed) {
       return;
     }
     setIsDeleting(true);
     try {
       await expensesApi.deleteExpense(expenseId);
-      await queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      await queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       await navigate({ to: '/' });
       toast.success('Expense deleted');
     } catch (err) {
@@ -83,10 +90,21 @@ export function EditExpensePage({ expenseId }: EditExpensePageProps) {
         variant="outline"
         className="text-destructive mt-4 w-full"
         disabled={isDeleting}
-        onClick={() => void handleDelete()}
+        onClick={() => void handleDeleteClick()}
       >
         {isDeleting ? 'Deleting…' : 'Delete expense'}
       </Button>
+
+      <ConfirmDialog
+        isOpen={isOpen}
+        title={confirmOptions.title}
+        description={confirmOptions.description}
+        confirmLabel="Delete"
+        pendingLabel="Deleting…"
+        isConfirming={isDeleting}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </div>
   );
 }

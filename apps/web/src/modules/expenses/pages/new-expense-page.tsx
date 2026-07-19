@@ -2,8 +2,9 @@ import { useNavigate } from '@tanstack/react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { getApiErrorMessage } from '@/lib/api';
+import { getApiErrorMessage } from '@/shared/lib/api';
 import * as expensesApi from '../api';
+import { expenseKeys } from '../api/query-keys';
 import { ExpenseForm } from '../components/expense-form';
 import type { ExpenseFormValues } from '../schema';
 
@@ -22,7 +23,7 @@ export function NewExpensePage() {
         notes: values.notes || undefined,
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      await queryClient.invalidateQueries({ queryKey: expenseKeys.all });
       await navigate({ to: '/' });
       toast.success('Expense added');
     },

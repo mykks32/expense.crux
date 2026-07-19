@@ -7,7 +7,7 @@ import type {
   UpdateExpenseInput,
 } from '@mykks32/expense-crux-contracts';
 
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/shared/lib/api';
 
 function requireData<T>(body: ApiResponse<T>): T {
   if (!body.data) {

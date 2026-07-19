@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { EXPENSE_SORT_FIELDS, SORT_ORDERS } from '@mykks32/expense-crux-contracts';
 import { FilterIcon } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/shared/components/ui/sheet';
+import { useDisclosure } from '@/shared/hooks';
 import { DEFAULT_FILTERS, hasActiveFilters, type ExpenseFiltersState } from '../utils/filters';
 
 const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
@@ -17,25 +18,25 @@ interface ExpenseFiltersPanelProps {
 }
 
 export function ExpenseFiltersPanel({ filters, onChange }: ExpenseFiltersPanelProps) {
-  const [open, setOpen] = useState(false);
+  const { isOpen, onOpenChange, close } = useDisclosure();
   const [draft, setDraft] = useState(filters);
 
   // Re-seed the draft from the applied filters each time the sheet opens, so edits
   // made then cancelled don't leak into the next time it's opened.
   useEffect(() => {
-    if (open) setDraft(filters);
-  }, [open, filters]);
+    if (isOpen) setDraft(filters);
+  }, [isOpen, filters]);
 
   const set = <K extends keyof ExpenseFiltersState>(key: K, value: ExpenseFiltersState[K]) =>
     setDraft((prev) => ({ ...prev, [key]: value }));
 
   const handleApply = () => {
     onChange(draft);
-    setOpen(false);
+    close();
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>
         <Button variant="outline" className="relative">
           <FilterIcon />
