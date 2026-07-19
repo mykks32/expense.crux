@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-import { GuestGuard } from '@/features/auth';
+import { GuestGuard } from '@/modules/auth';
 
 export const Route = createFileRoute('/_auth')({
   component: AuthLayout,

@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-import { AppShell } from '@/components/layout/app-shell';
-import { AuthGuard } from '@/features/auth';
+import { AppShell } from '@/app/layouts/app-shell';
+import { AuthGuard } from '@/modules/auth';
 
 export const Route = createFileRoute('/_authenticated')({
   component: AuthenticatedLayout,

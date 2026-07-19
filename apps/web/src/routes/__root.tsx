@@ -2,9 +2,9 @@ import type { ReactNode } from 'react';
 import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
-import { NotFoundPage } from '@/components/shared/not-found-page';
-import { Toaster } from '@/components/ui/sonner';
-import { QueryProvider } from '@/lib/query-provider';
+import { ErrorPage, NotFoundPage } from '@/shared/components/common';
+import { Toaster } from '@/shared/components/ui/sonner';
+import { QueryProvider } from '@/app/providers/query-provider';
 import appCss from '@/styles/app.css?url';
 
 export const Route = createRootRoute({
@@ -18,6 +18,7 @@ export const Route = createRootRoute({
   }),
   component: RootComponent,
   notFoundComponent: NotFoundPage,
+  errorComponent: ErrorPage,
 });
 
 function RootComponent() {
