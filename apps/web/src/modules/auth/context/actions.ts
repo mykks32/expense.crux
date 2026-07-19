@@ -1,7 +1,7 @@
 import type { AuthResponse } from '@mykks32/expense-crux-contracts';
 
-import { getCookie } from '@/lib/cookies';
-import { ApiError, setSessionExpiredHandler } from '@/lib/api';
+import { getCookie } from '@/shared/lib/cookies';
+import { ApiError, setSessionExpiredHandler } from '@/shared/lib/api';
 
 import * as authApi from '../api';
 import { authStore, patchAuthState } from './state';

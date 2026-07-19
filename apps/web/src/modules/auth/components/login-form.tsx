@@ -2,26 +2,26 @@ import { Link } from '@tanstack/react-router';
 import { useMutation } from '@tanstack/react-query';
 import { useForm } from '@tanstack/react-form';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { getApiErrorMessage } from '@/lib/api';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import { getApiErrorMessage } from '@/shared/lib/api';
 import useAuthStore from '../context';
-import { registerSchema, type RegisterFormValues } from '../schema';
+import { loginSchema, type LoginFormValues } from '../schema';
 
 import * as authApi from '../api';
 
-export function RegisterForm() {
+export function LoginForm() {
   const onAuthSuccess = useAuthStore((state) => state.onAuthSuccess);
 
   const mutation = useMutation({
-    mutationFn: authApi.register,
+    mutationFn: authApi.login,
     onSuccess: onAuthSuccess,
   });
 
   const form = useForm({
-    defaultValues: { email: '', password: '', name: '' } satisfies RegisterFormValues,
-    validators: { onChange: registerSchema },
+    defaultValues: { email: '', password: '' } satisfies LoginFormValues,
+    validators: { onChange: loginSchema },
     onSubmit: ({ value }) => mutation.mutate(value),
   });
 
@@ -34,26 +34,7 @@ export function RegisterForm() {
         void form.handleSubmit();
       }}
     >
-      <h1 className="text-2xl font-semibold">Sign up</h1>
-
-      <form.Field name="name">
-        {(field) => (
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor={field.name}>Name (optional)</Label>
-            <Input
-              id={field.name}
-              autoComplete="name"
-              aria-invalid={!field.state.meta.isValid}
-              value={field.state.value}
-              onBlur={field.handleBlur}
-              onChange={(e) => field.handleChange(e.target.value)}
-            />
-            {!field.state.meta.isValid && (
-              <p className="text-destructive text-sm">{field.state.meta.errors[0]?.message}</p>
-            )}
-          </div>
-        )}
-      </form.Field>
+      <h1 className="text-2xl font-semibold">Log in</h1>
 
       <form.Field name="email">
         {(field) => (
@@ -82,7 +63,7 @@ export function RegisterForm() {
             <Input
               id={field.name}
               type="password"
-              autoComplete="new-password"
+              autoComplete="current-password"
               aria-invalid={!field.state.meta.isValid}
               value={field.state.value}
               onBlur={field.handleBlur}
@@ -100,13 +81,13 @@ export function RegisterForm() {
       <form.Subscribe selector={(state) => state.canSubmit}>
         {(canSubmit) => (
           <Button type="submit" disabled={!canSubmit || mutation.isPending}>
-            {mutation.isPending ? 'Signing up…' : 'Sign up'}
+            {mutation.isPending ? 'Logging in…' : 'Log in'}
           </Button>
         )}
       </form.Subscribe>
 
-      <Link to="/login" className="text-primary text-center text-sm underline-offset-4 hover:underline">
-        Already have an account? Log in
+      <Link to="/register" className="text-primary text-center text-sm underline-offset-4 hover:underline">
+        Don&apos;t have an account? Sign up
       </Link>
     </form>
   );

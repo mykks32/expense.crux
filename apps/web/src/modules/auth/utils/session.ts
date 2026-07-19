@@ -1,6 +1,6 @@
 import type { AuthResponse, User } from '@mykks32/expense-crux-contracts';
 
-import { getCookie, removeCookie, setCookie } from '@/lib/cookies';
+import { getCookie, removeCookie, setCookie } from '@/shared/lib/cookies';
 
 export const ACCESS_TOKEN_COOKIE = 'AUTH_TOKEN';
 export const REFRESH_TOKEN_COOKIE = 'REFRESH_TOKEN';

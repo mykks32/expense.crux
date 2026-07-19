@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
-import { FullPageSpinner } from '@/components/shared/full-page-spinner';
+import { FullPageSpinner } from '@/shared/components/common';
 
 import useAuthInitialization from '../hooks/use-auth-initialization';
 import useAuthStore from '../context';
