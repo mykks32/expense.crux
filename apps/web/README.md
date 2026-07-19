@@ -32,31 +32,42 @@ From the repo root:
 
 - **Scaffold**: hand-assembled rather than via `create-tanstack-app`, to match this repo's existing conventions (standalone `tsconfig.json`, flat-config ESLint like `apps/server`, workspace dependency on `@mykks32/expense-crux-contracts`).
 - **`vite.config.ts`**: `@tanstack/react-start/plugin/vite`'s `tanstackStart()` (SSR + file-based router codegen) + `@tailwindcss/vite` (Tailwind v4) + `@vitejs/plugin-react`. Path aliases (`@/*` → `./src/*`) resolve via Vite's native `resolve.tsconfigPaths: true` — no `vite-tsconfig-paths` plugin needed.
-- **`src/router.tsx`**: exports `getRouter()` (the name TanStack Start's SSR entry expects) building a `createRouter` off the generated `src/routeTree.gen.ts`. That file is codegen'd by the `tanstackStart()` plugin from `src/routes/**` on every `dev`/`build` — it's git-ignored, never hand-edited.
+- **`src/app/router.tsx`**: exports `getRouter()` (the name TanStack Start's SSR entry expects) building a `createRouter` off the generated `src/routeTree.gen.ts`. That file is codegen'd by the `tanstackStart()` plugin from `src/routes/**` on every `dev`/`build` — it's git-ignored, never hand-edited. Since the entry moved out of `src/` root, `vite.config.ts` passes `tanstackStart({ router: { entry: 'app/router.tsx' } })` — the plugin's default `router.entry` is `src/router.tsx` and won't find it otherwise.
 - **Routing convention**: nested folders (`_authenticated/expenses/new.tsx`), not TanStack Router's alternative flat dot-notation (`_authenticated.expenses.new.tsx`) — chosen to mirror `apps/mobile`'s Expo Router directory structure (`(app)/expenses/new.tsx`).
-- **UI kit**: [shadcn/ui](https://ui.shadcn.com) primitives hand-copied into `src/components/ui/` (Tailwind v4 + Radix, `new-york` style, `neutral` base color — see `components.json`), plus [`@tanstack/react-table`](https://tanstack.com/table) for the expenses list (headless; only column defs + `flexRender` live here, pagination is server-driven via the backend's `meta`).
+- **UI kit**: [shadcn/ui](https://ui.shadcn.com) primitives hand-copied into `src/shared/components/ui/` (Tailwind v4 + Radix, `new-york` style, `neutral` base color — see `components.json`), plus [`@tanstack/react-table`](https://tanstack.com/table) powering the generic `src/shared/components/data-table/` used by the expenses list (headless; only column defs + `flexRender` live here, pagination is server-driven via the backend's `meta`).
 
 ## Architecture
 
-Feature-based, mirroring `apps/mobile`:
+Module-based:
 
 ```
 src/
-├── routes/            # thin TanStack Router route files — no business logic
-├── features/
-│   ├── auth/           api.ts, store.ts, schema.ts, components/ (forms)
-│   ├── expenses/        api.ts, schema.ts, filters.ts
+├── routes/            # thin TanStack Router route files — no business logic (must stay top-level;
+│                       # the tanstackStart() Vite plugin only scans src/routes/** for codegen)
+├── app/
+│   ├── router.tsx      getRouter() — see vite.config.ts's tanstackStart({ router: { entry } }) override
+│   ├── providers/       query-provider.tsx
+│   └── layouts/         app-shell.tsx
+├── modules/
+│   ├── auth/           api.ts, context/ (store), schema.ts, components/ (forms/guards), hooks/
+│   ├── expenses/        api.ts, api/query-keys.ts (TanStack Query key factory), schema.ts, utils/filters.ts, types/ (re-exports)
 │   │                     components/  reusable pieces (form, filter sheet, table)
 │   │                     pages/       route-level orchestration (query/mutation/nav)
-│   └── theme/           store.ts, components/theme-toggle.tsx
-├── components/
-│   ├── ui/              shadcn primitives only
-│   ├── shared/           generic cross-app pieces (FullPageSpinner)
-│   └── layout/           app shell / nav
-└── lib/                api.ts, cookies.ts, query-provider.tsx
+│   │                     tables/      react-table column defs
+│   └── theme/           context/ (store), components/theme-toggle.tsx
+└── shared/
+    ├── components/
+    │   ├── ui/           shadcn primitives only
+    │   ├── data-table/   generic column-def-driven <DataTable>, toolbar, pagination, loading/empty states
+    │   └── common/       generic cross-app pieces (FullPageSpinner, NotFoundPage, ConfirmDialog)
+    ├── hooks/            useDebounce, usePagination, useDisclosure, useDataTableSearch, useFilters,
+    │                      useConfirmDialog, useLocalStorage, useCopyToClipboard — add more only as a second consumer needs them
+    └── lib/              api.ts, cookies.ts, utils.ts
 ```
 
-- **Routes vs. pages vs. components**: a route file (`src/routes/...`) only wires a URL to a component — no `useQuery`/`useMutation` inside it. Page-level orchestration (data fetching, mutations, navigation) lives in `features/<name>/pages/`. Reusable, presentational pieces (forms, tables, panels) live in `features/<name>/components/`. Auth is the one exception: `LoginForm`/`RegisterForm` double as both, since there's no separate orchestration beyond the mutation itself.
+- **Routes vs. pages vs. components**: a route file (`src/routes/...`) only wires a URL to a component — no `useQuery`/`useMutation` inside it. Page-level orchestration (data fetching, mutations, navigation) lives in `modules/<name>/pages/`. Reusable, presentational pieces (forms, tables, panels) live in `modules/<name>/components/`. Auth is the one exception: `LoginForm`/`RegisterForm` double as both, since there's no separate orchestration beyond the mutation itself.
+- **Module boundaries**: each module's `index.ts` is its public API — an ESLint rule (`no-restricted-imports` in `eslint.config.mjs`) blocks importing a module's internals (`api/`, `components/`, `context/`, etc.) via the `@/modules/x/y` alias from outside that module; only relative imports from within the same module may reach past its `index.ts`.
+- **`shared/` vs. a module**: something belongs in `shared/` only once a second module needs it (or it's inherently generic, like the shadcn primitives) — don't pre-emptively move module-specific code there.
 
 ### Routing (TanStack Router, file-based)
 
@@ -87,9 +98,9 @@ Each route file exports a `Route` built with `createFileRoute('<route-id>')({ co
 
 ### Auth: cookies, not localStorage
 
-- `src/lib/cookies.ts` — plain `document.cookie` get/set/remove, SSR-guarded (`typeof document === 'undefined'` short-circuits server-side).
-- `src/lib/api.ts` — the shared axios instance. Reads `AUTH_TOKEN`/`REFRESH_TOKEN` cookies directly (no intermediate storage abstraction). Attaches `Authorization: Bearer <token>` to every request except `/auth/{login,register,refresh}`; on a `401` it calls `/auth/refresh` once (concurrent 401s share a single in-flight refresh) and retries. If refresh itself fails, it clears the cookies and notifies the auth store via `setSessionExpiredHandler` — a setter rather than a direct import, since the store depends on `features/auth/api.ts`, which depends on this client (a cycle otherwise).
-- `src/features/auth/store.ts` — Zustand store holding `user`/`loading`/`initialized`. `onAuthSuccess` persists a session (cookies + a `USER` cookie caching the profile). `initialize()` restores a session from the `REFRESH_TOKEN` cookie on first mount — this backend has no `/auth/me`, so `/auth/refresh` is the only way to both validate the session and get fresh user data.
+- `src/shared/lib/cookies.ts` — plain `document.cookie` get/set/remove, SSR-guarded (`typeof document === 'undefined'` short-circuits server-side).
+- `src/shared/lib/api.ts` — the shared axios instance. Reads `AUTH_TOKEN`/`REFRESH_TOKEN` cookies directly (no intermediate storage abstraction). Attaches `Authorization: Bearer <token>` to every request except `/auth/{login,register,refresh}`; on a `401` it calls `/auth/refresh` once (concurrent 401s share a single in-flight refresh) and retries. If refresh itself fails, it clears the cookies and notifies the auth store via `setSessionExpiredHandler` — a setter rather than a direct import, since the store depends on `modules/auth/api/index.ts`, which depends on this client (a cycle otherwise).
+- `src/modules/auth/context/` — a `@tanstack/react-store` `Store` holding `user`/`loading`/`initialized` (`state.ts`), its actions (`actions.ts`), and the selector hook (`hooks.ts`). `onAuthSuccess` persists a session (cookies + a `USER` cookie caching the profile). `initialize()` restores a session from the `REFRESH_TOKEN` cookie on first mount — this backend has no `/auth/me`, so `/auth/refresh` is the only way to both validate the session and get fresh user data.
 - **Why the auth guard runs at render time, not in `beforeLoad`**: tokens live only in a browser cookie the SSR pass doesn't parse — a `beforeLoad` redirect would see "no session" on every full page load and incorrectly bounce an already-logged-in user to `/login` before the client ever got a chance to check. Instead, `_auth/route.tsx` and `_authenticated/route.tsx` render a loading spinner until the client-side `initialize()` call resolves, then decide to render or `navigate()` away — mirrors `apps/mobile`'s `Stack.Protected` gating pattern, just checked imperatively instead of declaratively.
 
 ### Production build & Docker

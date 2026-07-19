@@ -6,7 +6,7 @@ Expense tracking monorepo: a NestJS + MongoDB server, a TanStack Start web app, 
 
 ```
 apps/server/       NestJS API (source of truth for behavior)
-apps/web/           TanStack Start (Vite + SSR) web app, feature-based — see apps/web/README.md
+apps/web/           TanStack Start (Vite + SSR) web app, module-based — see apps/web/README.md
 apps/mobile/        Expo (React Native) mobile app, feature-based
 packages/contracts/  @mykks32/expense-crux-contracts — shared interfaces (User, Expense, ApiResponse<T>, auth payloads)
 docker/            docker-compose.yml (server + web + mongo), server.Dockerfile, web.Dockerfile
@@ -53,7 +53,7 @@ Build responses via the static factories — never the constructor: `ApiResponse
 
 ## API versioning
 
-Every route is URI-versioned — `app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' })` in `main.ts` — so all endpoints live under `/v1/...` (e.g. `/v1/auth/login`, `/v1/expenses`) with no per-controller changes needed. Both clients append `/v1` once at the `baseURL` level — mobile's `apiClient` (`apps/mobile/src/lib/api.ts`) off `EXPO_PUBLIC_API_URL`, web's `apiClient` (`apps/web/src/lib/api.ts`) off `VITE_API_URL`. A future breaking change ships as `/v2/...` (via `@Version('2')` on the affected controller/handler) without breaking installs still on `/v1`.
+Every route is URI-versioned — `app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' })` in `main.ts` — so all endpoints live under `/v1/...` (e.g. `/v1/auth/login`, `/v1/expenses`) with no per-controller changes needed. Both clients append `/v1` once at the `baseURL` level — mobile's `apiClient` (`apps/mobile/src/lib/api.ts`) off `EXPO_PUBLIC_API_URL`, web's `apiClient` (`apps/web/src/shared/lib/api.ts`) off `VITE_API_URL`. A future breaking change ships as `/v2/...` (via `@Version('2')` on the affected controller/handler) without breaking installs still on `/v1`.
 
 ## Error handling
 

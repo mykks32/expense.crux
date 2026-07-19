@@ -29,15 +29,15 @@ export default tseslint.config(
   {
     // shadcn/ui primitives intentionally co-export a cva variants helper alongside the
     // component (e.g. `buttonVariants`) — that's the documented shadcn shape, not a bug.
-    files: ['src/components/ui/**'],
+    files: ['src/shared/components/ui/**'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },
   },
   {
-    // Each feature's index.ts is its public API; reach a feature's internals (api/,
+    // Each module's index.ts is its public API; reach a module's internals (api/,
     // components/, context/, hooks/, etc.) only via relative imports from within that
-    // same feature, never through the `@/features/x/y` alias from outside it.
+    // same module, never through the `@/modules/x/y` alias from outside it.
     files: ['src/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [
@@ -45,8 +45,8 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['@/features/*/**'],
-              message: "Import from the feature's public entry point (e.g. \"@/features/auth\") instead of reaching into its internals.",
+              group: ['@/modules/*/**'],
+              message: "Import from the module's public entry point (e.g. \"@/modules/auth\") instead of reaching into its internals.",
             },
           ],
         },
